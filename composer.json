@@ -1,0 +1,23 @@
+{
+    "name": "orno/router",
+    "description": "A routing component that uses Orno\\Di to route to fully configured dependency injected controllers.",
+    "keywords": ["orno", "di", "dependency", "injection", "container", "routing"],
+    "homepage": "http://github.com/orno/router",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4",
+        "orno/di": "dev-master",
+    },
+    "authors": [
+        {
+            "name": "Phil Bennett",
+            "email": "philipobenito@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Orno\\Router": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
