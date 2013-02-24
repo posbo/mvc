@@ -91,4 +91,14 @@ class RouteMap
     {
         $this->route($path, $destination, 'DELETE');
     }
+
+    /**
+     * Return the route map array
+     *
+     * @return array
+     */
+    public function getMap()
+    {
+        return $this->map;
+    }
 }

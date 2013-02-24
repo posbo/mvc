@@ -48,25 +48,21 @@ class Route
     /**
      * Constructor
      *
-     * @param string $path
-     * @param string $method
-     * @param string $queryString
-     * @param string $controller
-     * @param string $action
+     * @param Orno\Router\RouteMap $map
+     * @param string               $path
+     * @param string               $method
+     * @param string               $queryString
      */
     public function __construct(
         RouteMap $map = null,
         $path         = null,
         $method       = null,
-        $queryString  = null,
-        $controller   = null,
-        $action       = null
+        $queryString  = null
     ) {
+        $this->map         = $map;
         $this->path        = $path;
         $this->method      = $method;
         $this->queryString = $queryString;
-        $this->controller  = $controller;
-        $this->action      = $action;
     }
 
     /**
@@ -144,5 +140,50 @@ class Route
         }
 
         return $this;
+    }
+
+    /**
+     * Find a matching route and set the controller and action members
+     *
+     * @return boolean
+     */
+    public function match()
+    {
+        if (is_null($this->path)) {
+            throw new \RuntimeException('Environment must be set before matching a route');
+        }
+
+        // get the map of routes for this method type
+        $map = $this->map->getMap()[$this->method];
+
+        // is there a literal match?
+        if (array_key_exists($this->path, $map)) {
+            $this->controller = $map[$this->path]['controller'];
+
+            if (array_key_exists('action', $map[$this->path])) {
+                $this->action = $map[$this->path]['action'];
+            }
+
+            return true;
+        }
+
+        // loop through routes to find a match
+        foreach ($map as $key => $val) {
+            $key = str_replace(array(':any', ':num'), array('[^/]+', '[0-9]+'), $key);
+
+            // Does the regex match?
+            if (preg_match('#^' . $key . '$#', $this->path)) {
+                $this->controller = $val['controller'];
+
+                if (array_key_exists('action', $val)) {
+                    $this->action = $val['action'];
+                }
+
+                return true;
+            }
+        }
+
+        // if we've got this far then return false for no match
+        return false;
     }
 }
