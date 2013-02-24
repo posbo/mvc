@@ -1,15 +1,9 @@
 <?php namespace Orno\Router;
 
-use Orno\Di\ContainerAwareTrait;
 use Closure;
 
 class RouteMap
 {
-    /**
-     * Get access to the container object
-     */
-    use ContainerAwareTrait;
-
     /**
      * @var array
      */
@@ -40,7 +34,7 @@ class RouteMap
         }
 
         if ($destination instanceof Closure) {
-            $this->getContainer()->register($path, $destination);
+            $this->map[$method][$path]['controller'] = $destination;
         }
     }
 
