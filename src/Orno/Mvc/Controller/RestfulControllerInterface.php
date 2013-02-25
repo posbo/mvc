@@ -12,7 +12,7 @@ interface RestfulControllerInterface
     /**
      * Restful Get One Action
      *
-     * GET /controller/:id
+     * GET /controller/(id)
      *
      * @param mixed $id
      */
@@ -28,7 +28,7 @@ interface RestfulControllerInterface
     /**
      * Restful Update Action
      *
-     * PUT /controller/:id
+     * PUT /controller/(id)
      *
      * @param mixed $id
      */
@@ -37,7 +37,7 @@ interface RestfulControllerInterface
     /**
      * Restful Delete Action
      *
-     * DELETE /controller/:id
+     * DELETE /controller/(id)
      *
      * @param mixed $id
      */
