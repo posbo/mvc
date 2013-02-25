@@ -2,6 +2,7 @@
 
 use Orno\Di\ContainerAwareTrait;
 use Orno\Mvc\Route\Map as RouteMap;
+use Orno\Mvc\Controller\RestfulControllerInterface;
 
 class Route
 {
@@ -169,7 +170,7 @@ class Route
 
         // loop through routes to find a match
         foreach ($map as $key => $val) {
-            $key = str_replace(array(':any', ':num'), array('[^/]+', '[0-9]+'), $key);
+            $key = preg_replace('/\s*\([^)]*\)/', '[^/]+', $key);
 
             // Does the regex match?
             if (preg_match('#^' . $key . '$#', $this->path)) {
