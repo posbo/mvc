@@ -1,8 +1,8 @@
-<?php namespace Orno\Router;
+<?php namespace Orno\Mvc\Route;
 
 use Closure;
 
-class RouteMap
+class Map
 {
     /**
      * @var array

@@ -1,7 +1,7 @@
-<?php namespace Orno\Router;
+<?php namespace Orno\Mvc\Route;
 
 use Orno\Di\ContainerAwareTrait;
-use Orno\Router\RouteMap;
+use Orno\Mvc\Route\Map as RouteMap;
 
 class Route
 {
