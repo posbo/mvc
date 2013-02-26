@@ -25,12 +25,11 @@ class Map
         if (is_string($destination)) {
             $split = explode('@', $destination);
 
-            if (count($split) < 2) {
-                throw \InvalidArgumentException('Route destinations must follow the pattern "Controller@Action"');
+            if (count($split) > 1) {
+                $this->map[$method][$path]['action'] = $split[1];
             }
 
             $this->map[$method][$path]['controller'] = $split[0];
-            $this->map[$method][$path]['action']     = $split[1];
         }
 
         if ($destination instanceof Closure) {
