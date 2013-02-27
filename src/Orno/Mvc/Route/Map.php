@@ -17,10 +17,13 @@ class Map
      * @param  string         $method
      * @return void
      */
-    public function route($path, $destination, $method = 'GET')
+    public function route($path, $destination, $method = null)
     {
         $this->map[$path] = [];
-        $this->map[$path]['method'] = strtoupper($method);
+
+        if (! is_null($method)) {
+            $this->map[$path]['method'] = strtoupper($method);
+        }
 
         if (is_string($destination)) {
             $split = explode('@', $destination);

@@ -143,6 +143,11 @@ class Route
         return $this;
     }
 
+    public function dispatch()
+    {
+
+    }
+
     /**
      * Find a matching route and set the controller and action members
      *
