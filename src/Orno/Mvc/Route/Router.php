@@ -145,7 +145,17 @@ class Route
 
     public function dispatch()
     {
+        if (! $this->match()) {
+            // has a 404 route been defined in the map? if not, we'll trigger the
+            // minimum 404 response and bail out
+            if (! array_key_exists('404', $this->map)) {
+                header('HTTP/1.0 404 Not Found');
+                die;
+            }
 
+            // recommended to set a 404 route in the route map for showing a custom 404 page
+            $this->controller = $this->map['404']['controller'];
+        }
     }
 
     /**
