@@ -18,11 +18,11 @@ class MapTest extends PHPUnit_Framework_Testcase
 
         $map = $route->getMap();
 
-        $this->assertTrue(array_key_exists('/', $map['GET']));
-        $this->assertTrue(array_key_exists('/get', $map['GET']));
-        $this->assertTrue(array_key_exists('/post', $map['POST']));
-        $this->assertTrue(array_key_exists('/put', $map['PUT']));
-        $this->assertTrue(array_key_exists('/delete', $map['DELETE']));
+        $this->assertTrue(array_key_exists('/', $map));
+        $this->assertTrue(array_key_exists('/get', $map));
+        $this->assertTrue(array_key_exists('/post', $map));
+        $this->assertTrue(array_key_exists('/put', $map));
+        $this->assertTrue(array_key_exists('/delete', $map));
     }
 
     public function testMapRegistersCorrectControllerAndAction()
@@ -32,7 +32,7 @@ class MapTest extends PHPUnit_Framework_Testcase
         $route->get('/one', 'ControllerOne@actionOne');
         $route->get('/two', 'ControllerTwo@actionTwo');
 
-        $map = $route->getMap()['GET'];
+        $map = $route->getMap();
 
         $this->assertSame('ControllerOne', $map['/one']['controller']);
         $this->assertSame('ControllerTwo', $map['/two']['controller']);
@@ -47,13 +47,13 @@ class MapTest extends PHPUnit_Framework_Testcase
         $route->route('/restful-one', 'ControllerOne');
         $route->route('/restful-two', 'ControllerTwo');
 
-        $map = $route->getMap()['GET'];
+        $map = $route->getMap();
 
         $this->assertSame('ControllerOne', $map['/restful-one']['controller']);
         $this->assertSame('ControllerTwo', $map['/restful-two']['controller']);
     }
 
-    public function testMApRegistersToClosure()
+    public function testMapRegistersToClosure()
     {
         $route = new Map;
 
@@ -65,7 +65,7 @@ class MapTest extends PHPUnit_Framework_Testcase
             return true;
         });
 
-        $map = $route->getMap()['GET'];
+        $map = $route->getMap();
 
         $this->assertTrue($map['/']['controller'] instanceof Closure);
         $this->assertTrue($map['/two']['controller'] instanceof Closure);

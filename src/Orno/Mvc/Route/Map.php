@@ -19,21 +19,21 @@ class Map
      */
     public function route($path, $destination, $method = 'GET')
     {
-        $method = strtoupper($method);
-        $this->map[$method][$path] = [];
+        $this->map[$path] = [];
+        $this->map[$path]['method'] = strtoupper($method);
 
         if (is_string($destination)) {
             $split = explode('@', $destination);
 
             if (count($split) > 1) {
-                $this->map[$method][$path]['action'] = $split[1];
+                $this->map[$path]['action'] = $split[1];
             }
 
-            $this->map[$method][$path]['controller'] = $split[0];
+            $this->map[$path]['controller'] = $split[0];
         }
 
         if ($destination instanceof Closure) {
-            $this->map[$method][$path]['controller'] = $destination;
+            $this->map[$path]['controller'] = $destination;
         }
     }
 
