@@ -1,12 +1,12 @@
 {
-    "name": "orno/router",
+    "name": "orno/mvc",
     "description": "A routing component that uses Orno\\Di to route to fully configured dependency injected controllers.",
     "keywords": ["orno", "di", "dependency", "injection", "container", "routing"],
-    "homepage": "http://github.com/orno/router",
+    "homepage": "http://github.com/orno/mvc",
     "license": "MIT",
     "require": {
         "php": ">=5.4",
-        "orno/di": "dev-master",
+        "orno/di": "dev-master"
     },
     "authors": [
         {
@@ -16,7 +16,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Orno\\Router": "src/"
+            "Orno\\Mvc": "src/"
         }
     },
     "minimum-stability": "dev"
