@@ -4,7 +4,7 @@ use Orno\Di\ContainerAwareTrait;
 use Orno\Mvc\Route\Map as RouteMap;
 use Orno\Mvc\Controller\RestfulControllerInterface;
 
-class Route
+class Router
 {
     /**
      * Get access to the container object
@@ -19,12 +19,12 @@ class Route
     /**
      * @var string
      */
-    protected $method;
+    protected $matched;
 
     /**
      * @var string
      */
-    protected $queryString;
+    protected $method;
 
     /**
      * @var string
@@ -39,7 +39,7 @@ class Route
     /**
      * @var array
      */
-    protected $params;
+    protected $arguments;
 
     /**
      * @var Orno\Router\RouteMap
@@ -52,18 +52,15 @@ class Route
      * @param Orno\Router\RouteMap $map
      * @param string               $path
      * @param string               $method
-     * @param string               $queryString
      */
     public function __construct(
         RouteMap $map = null,
         $path         = null,
-        $method       = null,
-        $queryString  = null
+        $method       = null
     ) {
         $this->map         = $map;
         $this->path        = $path;
         $this->method      = $method;
-        $this->queryString = $queryString;
     }
 
     /**
@@ -123,6 +120,16 @@ class Route
     }
 
     /**
+     * Return the matched route
+     *
+     * @return string
+     */
+    public function getMatched()
+    {
+        return $this->matched;
+    }
+
+    /**
      * Parse the route from the $_SERVER environment array
      *
      * @param  array $environment
@@ -145,16 +152,18 @@ class Route
 
     public function dispatch()
     {
+        $map = $this->map->getMap();
+
         if (! $this->match()) {
             // has a 404 route been defined in the map? if not, we'll trigger the
             // minimum 404 response and bail out
-            if (! array_key_exists('404', $this->map)) {
+            if (! array_key_exists('404', $map)) {
                 header('HTTP/1.0 404 Not Found');
                 die('Error 404 - Page not found');
             }
 
             // recommended to set a 404 route in the route map for showing a custom 404 page
-            $this->controller = $this->map['404']['controller'];
+            $this->controller = $map['404']['controller'];
         }
     }
 
@@ -170,7 +179,7 @@ class Route
         }
 
         // get the map of routes for this method type
-        $map = $this->map->getMap()[$this->method];
+        $map = $this->map->getMap();
 
         // is there a literal match?
         if (array_key_exists($this->path, $map)) {
@@ -180,11 +189,14 @@ class Route
                 $this->action = $map[$this->path]['action'];
             }
 
+            $this->matched = $this->path;
+
             return true;
         }
 
         // loop through routes to find a match
         foreach ($map as $key => $val) {
+            $candidate = $key;
             $key = preg_replace('/\s*\([^)]*\)/', '[^/]+', $key);
 
             // Does the regex match?
@@ -195,11 +207,23 @@ class Route
                     $this->action = $val['action'];
                 }
 
+                $this->matched = $candidate;
+
                 return true;
             }
         }
 
         // if we've got this far then return false for no match
         return false;
+    }
+
+    /**
+     * Set the params to pass to the action
+     *
+     * @return void
+     */
+    public function setArguments()
+    {
+
     }
 }
