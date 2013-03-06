@@ -32,8 +32,10 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
         $route->delete('/delete/route', 'Controller@deleteAction');
         $route->options('/options/route', 'Controller@optionsAction');
 
-        foreach($route->getRoutes() as $k => $v) {
-            $this->assertTrue($v instanceof Route);
+        $this->assertSame(count($route->getRoutes()), 6);
+
+        foreach($route->getRoutes() as $r) {
+            $this->assertTrue($r instanceof Route);
         }
     }
 }
