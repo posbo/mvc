@@ -56,7 +56,7 @@ class RouteCollection
 
         $action = (is_array($destination)) ? $destination[1] : null;
 
-        $routes[] = new Route($route, $controller, $action, $method, $closure);
+        $this->routes[] = new Route($route, $controller, $action, $method, $closure);
     }
 
     /**
