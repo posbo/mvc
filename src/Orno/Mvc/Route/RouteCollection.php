@@ -2,8 +2,9 @@
 
 use Orno\Di\ContainerAwareTrait;
 use Orno\Mvc\Route\Route;
+use Closure;
 
-class Router
+class RouteCollection
 {
     /**
      * Access the container
@@ -11,30 +12,18 @@ class Router
     use ContainerAwareTrait;
 
     /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var string
-     */
-    protected $method;
-
-    /**
      * @var array
      */
     protected $routes = [];
 
     /**
-     * Constructor
+     * Return array of Route objects
      *
-     * @param string $path
-     * @param string $method
+     * @return array
      */
-    public function __construct($path = null, $method = null)
+    public function getRoutes()
     {
-        $this->path   = $path;
-        $this->method = $method;
+        return $this->routes;
     }
 
     /**
@@ -47,6 +36,8 @@ class Router
      */
     public function add($route, $destination, $method = null)
     {
+        $closure = false;
+
         if (is_string($destination)) {
             $destination = explode('@', $destination);
             $controller  = $destination[0];
@@ -71,8 +62,8 @@ class Router
     /**
      * Proxy to add method for GET routes
      *
-     * @param  string $route
-     * @param  string $destination
+     * @param  string         $route
+     * @param  string|closure $destination
      * @return void
      */
     public function get($route, $destination)
@@ -83,8 +74,8 @@ class Router
     /**
      * Proxy to add method for POST routes
      *
-     * @param  string $route
-     * @param  string $destination
+     * @param  string         $route
+     * @param  string|closure $destination
      * @return void
      */
     public function post($route, $destination)
@@ -95,8 +86,8 @@ class Router
     /**
      * Proxy to add method for PUT routes
      *
-     * @param  string $route
-     * @param  string $destination
+     * @param  string         $route
+     * @param  string|closure $destination
      * @return void
      */
     public function put($route, $destination)
@@ -105,14 +96,38 @@ class Router
     }
 
     /**
+     * Proxy to add method for PATCH routes
+     *
+     * @param  string         $route
+     * @param  string|closure $destination
+     * @return void
+     */
+    public function patch($route, $destination)
+    {
+        $this->add($route, $destination, 'PATCH');
+    }
+
+    /**
      * Proxy to add method for DELETE routes
      *
-     * @param  string $route
-     * @param  string $destination
+     * @param  string         $route
+     * @param  string|closure $destination
      * @return void
      */
     public function delete($route, $destination)
     {
         $this->add($route, $destination, 'DELETE');
+    }
+
+    /**
+     * Proxy to add method for OPTIONS routes
+     *
+     * @param  string         $route
+     * @param  string|closure $destination
+     * @return void
+     */
+    public function options($route, $destination)
+    {
+        $this->add($route, $destination, 'OPTIONS');
     }
 }
