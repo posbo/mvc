@@ -10,6 +10,11 @@ class Route
     protected $route;
 
     /**
+     * @var array
+     */
+    protected $segments;
+
+    /**
      * Points to item registered with Orno\Di\Container
      *
      * @var string
@@ -59,6 +64,28 @@ class Route
         $this->action     = $action;
         $this->method     = $method;
         $this->closure    = $closure;
+
+        $this->setSegments();
+    }
+
+    /**
+     * Set the segments for this route
+     *
+     * @return void
+     */
+    public function setSegments()
+    {
+        $this->segments = explode('/', trim($this->route, '/'));
+    }
+
+    /**
+     * Return the segments array
+     *
+     * @return array
+     */
+    public function getSegments()
+    {
+        return $this->segments;
     }
 
     /**
@@ -119,5 +146,15 @@ class Route
     public function getParams()
     {
         return $this->params;
+    }
+
+    /**
+     * Is the controller a closure?
+     *
+     * @return boolean
+     */
+    public function isClosure()
+    {
+        return $this->closure;
     }
 }
