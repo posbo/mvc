@@ -34,11 +34,6 @@ class Route
     protected $method;
 
     /**
-     * @var array
-     */
-    protected $params;
-
-    /**
      * @var boolean
      */
     protected $closure;
@@ -53,19 +48,22 @@ class Route
      * @param boolean $closure
      */
     public function __construct(
-        $route        = null,
-        $controller   = null,
-        $action       = null,
-        $method       = null,
-        $closure      = false
+        $route      = null,
+        $controller = null,
+        $action     = null,
+        $method     = null,
+        $closure    = false
     ) {
-        $this->route      = $route;
         $this->controller = $controller;
         $this->action     = $action;
         $this->method     = $method;
         $this->closure    = $closure;
 
-        $this->setSegments();
+        $this->setSegments($route);
+
+        $route = preg_replace('/\((\/.*?)\)/', '(\/.*)?', $route);
+        $route = preg_replace('/\([^\/].*?\)/', '(.*)', $route);
+        $this->route = $route;
     }
 
     /**
@@ -73,9 +71,9 @@ class Route
      *
      * @return void
      */
-    public function setSegments()
+    public function setSegments($route)
     {
-        $this->segments = explode('/', trim($this->route, '/'));
+        $this->segments = explode('/', trim($route, '/'));
     }
 
     /**
@@ -126,26 +124,6 @@ class Route
     public function getMethod()
     {
         return $this->method;
-    }
-
-    /**
-     * Set the params array
-     *
-     * @param array $params
-     */
-    public function setParams(array $params)
-    {
-        $this->params = $params;
-    }
-
-    /**
-     * Return the params array
-     *
-     * @return array
-     */
-    public function getParams()
-    {
-        return $this->params;
     }
 
     /**
