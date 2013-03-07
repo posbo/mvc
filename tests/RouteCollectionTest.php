@@ -38,4 +38,23 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
             $this->assertTrue($r instanceof Route);
         }
     }
+
+    public function testRestfulRouteCreatesAllRoutes()
+    {
+        $route = new RouteCollection;
+
+        $route->restful('/restful', 'RestfulController');
+
+        $methods = ['GET', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+        $actions = ['getAll', 'get', 'create', 'update', 'update', 'delete', 'options'];
+
+        foreach ($route->getRoutes() as $r) {
+            $this->assertTrue($r instanceof Route);
+            $this->assertSame($r->getMethod(), $methods[0]);
+            $this->assertSame($r->getAction(), $actions[0]);
+
+            array_shift($methods);
+            array_shift($actions);
+        }
+    }
 }
