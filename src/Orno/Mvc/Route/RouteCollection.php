@@ -34,7 +34,7 @@ class RouteCollection
      * @param  string         $method
      * @return void
      */
-    public function add($route, $destination, $method = null)
+    public function add($route, $destination, $method = 'ANY')
     {
         $closure = false;
 
@@ -56,7 +56,7 @@ class RouteCollection
 
         $action = (is_array($destination)) ? $destination[1] : null;
 
-        $this->routes[] = new Route($route, $controller, $action, $method, $closure);
+        $this->routes[$method][] = new Route($route, $controller, $action, $method, $closure);
     }
 
     /**
