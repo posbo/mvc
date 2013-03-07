@@ -29,6 +29,8 @@ interface RestfulControllerInterface
      * Restful Update Action
      *
      * PUT /controller/(id)
+     * or
+     * PATCH /controler/(id)
      *
      * @param mixed $id
      */

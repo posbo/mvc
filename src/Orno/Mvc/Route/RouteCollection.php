@@ -130,4 +130,24 @@ class RouteCollection
     {
         $this->add($route, $destination, 'OPTIONS');
     }
+
+    /**
+     * Creates all Route objects for a restful route
+     *
+     * @param  string $route
+     * @param  string $destination
+     * @return void
+     */
+    public function restful($route, $destination)
+    {
+        $resource = rtrim($route, '/') . '(/id)';
+
+        $this->get($route, $destination . '@getAll');
+        $this->get($resource, $destination . '@get');
+        $this->post($route, $destination . '@create');
+        $this->put($resource, $destination . '@update');
+        $this->patch($resource, $destination . '@update');
+        $this->delete($resource, $destination . '@delete');
+        $this->options($route, $destination . '@options');
+    }
 }
