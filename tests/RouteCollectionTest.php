@@ -34,8 +34,10 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
 
         $this->assertSame(count($route->getRoutes()), 6);
 
-        foreach($route->getRoutes() as $r) {
-            $this->assertTrue($r instanceof Route);
+        foreach($route->getRoutes() as $method) {
+            foreach ($method as $route) {
+                $this->assertTrue($route instanceof Route);
+            }
         }
     }
 
@@ -45,16 +47,10 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
 
         $route->restful('/restful', 'RestfulController');
 
-        $methods = ['GET', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
-        $actions = ['getAll', 'get', 'create', 'update', 'update', 'delete', 'options'];
-
-        foreach ($route->getRoutes() as $r) {
-            $this->assertTrue($r instanceof Route);
-            $this->assertSame($r->getMethod(), $methods[0]);
-            $this->assertSame($r->getAction(), $actions[0]);
-
-            array_shift($methods);
-            array_shift($actions);
+        foreach ($route->getRoutes() as $method) {
+            foreach ($method as $route) {
+                $this->assertTrue($route instanceof Route);
+            }
         }
     }
 }
