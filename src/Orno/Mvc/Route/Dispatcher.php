@@ -71,6 +71,12 @@ class Dispatcher
         return $this;
     }
 
+    /**
+     * Match the path against a route
+     *
+     * @param  string $method
+     * @return boolean
+     */
     public function match($method = 'GET')
     {
         foreach ($this->collection->getRoutes()[$method] as $route) {
@@ -91,6 +97,11 @@ class Dispatcher
         return false;
     }
 
+    /**
+     * Dispatch the route
+     *
+     * @return mixed
+     */
     public function run()
     {
         if (is_null($this->path) || is_null($this->method)) {
@@ -102,12 +113,37 @@ class Dispatcher
             throw new \RuntimeException('No route found for ' . $this->path);
         }
 
-        $object = $this->collection->getContainer()->resolve($this->route->getController(), $this->arguments);
+        $arguments = $this->getArguments();
+
+        $object = $this->collection->getContainer()->resolve($this->route->getController(), $arguments);
 
         if (! $this->route->isClosure()) {
-            $object = call_user_func_array([$object, $this->route->getAction()], $this->arguments);
+            $object = call_user_func_array([$object, $this->route->getAction()], $arguments);
         }
 
         return $object;
+    }
+
+    /**
+     * Get the arguments to pass to the action
+     *
+     * @return array
+     */
+    public function getArguments()
+    {
+        $arguments = [];
+        $segments  = explode('/', trim($this->path, '/'));
+
+        if (! empty($segments)) {
+            $keys = preg_grep('/\([^\/].*?\)/', $this->route->getSegments());
+        }
+
+        if (! empty($keys)) {
+            foreach ($keys as $key => $val) {
+                $arguments[] = $segments[$key];
+            }
+        }
+
+        return $arguments;
     }
 }

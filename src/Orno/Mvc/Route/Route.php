@@ -61,7 +61,7 @@ class Route
 
         $this->setSegments($route);
 
-        $route = preg_replace('/\((\/.*?)\)/', '(\/.*)?', $route);
+        $route = preg_replace('/\/\((\?.*?)\)/', '(\/.*)?', $route);
         $route = preg_replace('/\([^\/].*?\)/', '(.*)', $route);
         $this->route = $route;
     }
