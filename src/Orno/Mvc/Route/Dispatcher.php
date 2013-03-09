@@ -22,7 +22,7 @@ class Dispatcher
     /**
      * @var array
      */
-    protected $arguments;
+    protected $arguments = [];
 
     /**
      * @var Orno\Mvc\Route\Route
@@ -57,19 +57,21 @@ class Dispatcher
      * @param  array                     $server
      * @return Orno\Mvc\Route\Dispatcher $this
      */
-    public function setEnvironment(array $server = [])
+    public function setEnvironment(array $server)
     {
-        $route = str_replace($server['SCRIPT_NAME'], null, $server['REQUEST_URI']);
+        if (! empty($server)) {
+            $route = str_replace($server['SCRIPT_NAME'], null, $server['REQUEST_URI']);
 
-        $this->path   = ($route === '') ? '/' : $route;
-        $this->method = $server['REQUEST_METHOD'];
+            $this->path   = ($route === '') ? '/' : $route;
+            $this->method = $server['REQUEST_METHOD'];
 
-        $this->setSegments();
+            $this->setSegments();
+        }
 
         return $this;
     }
 
-    public function match($method = 'ALL')
+    public function match($method = 'GET')
     {
         foreach ($this->collection->getRoutes()[$method] as $route) {
             // is there a literal match?
@@ -87,5 +89,25 @@ class Dispatcher
         }
 
         return false;
+    }
+
+    public function run()
+    {
+        if (is_null($this->path) || is_null($this->method)) {
+            throw new \RuntimeException('Environment must be set before dispatching');
+        }
+
+        if (! $this->match($this->method)) {
+            // TODO: handle 404
+            throw new \RuntimeException('No route found for ' . $this->path);
+        }
+
+        $object = $this->collection->getContainer()->resolve($this->route->getController(), $this->arguments);
+
+        if (! $this->route->isClosure()) {
+            $object = call_user_func_array([$object, $this->route->getAction()], $this->arguments);
+        }
+
+        return $object;
     }
 }
