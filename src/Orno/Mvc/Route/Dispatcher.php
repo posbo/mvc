@@ -61,7 +61,7 @@ class Dispatcher
     {
         if (! empty($server)) {
             $route = str_replace($server['SCRIPT_NAME'], null, $server['REQUEST_URI']);
-
+            $route = rtrim($route, '/');
             $this->path   = ($route === '') ? '/' : $route;
             $this->method = $server['REQUEST_METHOD'];
 
