@@ -16,7 +16,8 @@
     ],
     "autoload": {
         "psr-0": {
-            "Orno\\Mvc": "src/"
+            "Orno\\Mvc": "src/",
+            "Assets\\OrnoTest": "tests/"
         }
     },
     "minimum-stability": "dev"
