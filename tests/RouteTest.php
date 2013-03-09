@@ -9,7 +9,7 @@ class RouteTest extends PHPUnit_Framework_Testcase
     {
         $route = new Route('/test/(route)', 'Some\Namespace\Controller', 'someAction', 'GET');
 
-        $this->assertSame($route->getRoute(), '/test/(.*)');
+        $this->assertSame($route->getRoute(), '/test/(.+?)');
         $this->assertSame($route->getController(), 'Some\Namespace\Controller');
         $this->assertSame($route->getAction(), 'someAction');
         $this->assertSame($route->getMethod(), 'GET');
