@@ -14,7 +14,14 @@ class RouteCollection
     /**
      * @var array
      */
-    protected $routes = [];
+    protected $routes = [
+        'GET'     => [],
+        'POST'    => [],
+        'PUT'     => [],
+        'PATCH'   => [],
+        'DELETE'  => [],
+        'OPTIONS' => []
+    ];
 
     /**
      * Return array of Route objects
@@ -34,7 +41,7 @@ class RouteCollection
      * @param  string         $method
      * @return void
      */
-    public function add($route, $destination, $method = 'ANY')
+    public function add($route, $destination, $method = 'GET')
     {
         $closure = false;
 
@@ -140,7 +147,7 @@ class RouteCollection
      */
     public function restful($route, $destination)
     {
-        $resource = rtrim($route, '/') . '(/id)';
+        $resource = rtrim($route, '/') . '/(id)';
 
         $this->get($route, $destination . '@getAll');
         $this->get($resource, $destination . '@get');
