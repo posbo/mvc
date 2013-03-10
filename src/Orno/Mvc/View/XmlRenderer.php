@@ -2,7 +2,7 @@
 
 use ArrayAccess;
 use Orno\Mvc\View\RendererInterface;
-use SimpleXmlElement;
+use SimpleXMLElement;
 
 class XmlRenderer implements ArrayAccess, RendererInterface
 {
