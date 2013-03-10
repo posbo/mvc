@@ -23,6 +23,17 @@ class RouteCollection
         'OPTIONS' => []
     ];
 
+    public function __construct(array $config = [])
+    {
+        if (! empty($config)) {
+            foreach ($config as $key => $values) {
+                foreach ($values as $value) {
+                    $this->{strtolower($key)}($value[0], $value[1]);
+                }
+            }
+        }
+    }
+
     /**
      * Return array of Route objects
      *

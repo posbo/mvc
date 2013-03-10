@@ -6,6 +6,30 @@ use Orno\Mvc\Route\Route;
 
 class RouteCollectionTest extends PHPUnit_Framework_Testcase
 {
+    public function testRouteCollectionAcceptsConfig()
+    {
+        $routes = [
+            'get' => [
+                ['/test/route', 'TestController@testAction'],
+                ['/test/route2', function () { return true; }]
+            ],
+            'post' => [
+                ['/test/route', 'TestController@testAction'],
+                ['/test/route2', function () { return true; }]
+            ]
+        ];
+
+        $collection = new RouteCollection($routes);
+
+        foreach ($collection->getRoutes()['GET'] as $route) {
+            $this->assertTrue($route instanceof Route);
+        }
+
+        foreach ($collection->getRoutes()['POST'] as $route) {
+            $this->assertTrue($route instanceof Route);
+        }
+    }
+
     public function testAddRouteWithControllerAndAction()
     {
         $route = new RouteCollection;
