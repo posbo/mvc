@@ -19,11 +19,34 @@ class XmlRenderer implements ArrayAccess, RendererInterface
     public function render()
     {
         $xml = new SimpleXMLElement('<root/>');
-        $data = array_flip($this->data);
-        array_walk_recursive($data, [$xml, 'addChild']);
+
+        $this->arrayToXml($this->data, $xml);
 
         header('Content-Type: text/xml');
         echo $xml->asXml();
+    }
+
+    /**
+     * Walk array and build SimpleXML object
+     *
+     * @param  array            $array
+     * @param  SimpleXMLElement $node
+     * @return void
+     */
+    public function arrayToXml($array, $node)
+    {
+        foreach($array as $key => $value) {
+            if(is_array($value)) {
+                if (is_numeric($key)) {
+                    $subnode = $node->addChild('node');
+                } else {
+                    $subnode = $node->addChild($key);
+                }
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $node->addChild($key, $value);
+            }
+        }
     }
 
     /**
