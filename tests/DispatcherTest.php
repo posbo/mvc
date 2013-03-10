@@ -128,6 +128,20 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $this->assertSame($dispatch->run(), 'Hello World');
     }
 
+    public function testArgumentsPassedToAction()
+    {
+        $route = new RouteCollection;
+
+        $route->get('/test/(argument)', function ($argument) {
+            return $argument;
+        });
+
+        $dispatch = new Dispatcher($route);
+        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/hello', 'REQUEST_METHOD' => 'POST']);
+
+        $this->assertSame($dispatch->run(), 'hello');
+    }
+
     /**
      * @expectedException RuntimeException
      */

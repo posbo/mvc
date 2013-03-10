@@ -109,8 +109,9 @@ class Dispatcher
         }
 
         if (! $this->match($this->method)) {
-            // TODO: handle 404
-            throw new \RuntimeException('No route found for ' . $this->path);
+            if (! $this->match()) {
+                throw new \RuntimeException('Route not found for ' . $this->path);
+            }
         }
 
         $arguments = $this->getArguments();
