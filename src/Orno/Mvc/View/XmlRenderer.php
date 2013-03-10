@@ -19,8 +19,9 @@ class XmlRenderer implements ArrayAccess, RendererInterface
     public function render()
     {
         $xml = new SimpleXMLElement('<root/>');
-        array_walk_recursive($this->data, [$xml, 'addChild']);
-        echo $xml->asXml();
+        $data = array_flip($this->data);
+        array_walk_recursive($data, [$xml, 'addChild']);
+        print $xml->asXml();
     }
 
     /**
