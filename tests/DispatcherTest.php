@@ -37,7 +37,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(required)', 'TestController@testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'QUERY_STRING' => 'test=test', 'REQUEST_METHOD' => 'GET']);
 
         $this->assertTrue($dispatch->match('GET'));
     }
