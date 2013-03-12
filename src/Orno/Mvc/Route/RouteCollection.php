@@ -24,6 +24,27 @@ class RouteCollection
         'OPTIONS' => []
     ];
 
+    protected $hooks = [
+        'before' => [
+            'ANY'     => [],
+            'GET'     => [],
+            'POST'    => [],
+            'PUT'     => [],
+            'PATCH'   => [],
+            'DELETE'  => [],
+            'OPTIONS' => []
+        ],
+        'after'  => [
+            'ANY'     => [],
+            'GET'     => [],
+            'POST'    => [],
+            'PUT'     => [],
+            'PATCH'   => [],
+            'DELETE'  => [],
+            'OPTIONS' => []
+        ]
+    ];
+
     /**
      * Constructor
      *
@@ -32,9 +53,22 @@ class RouteCollection
     public function __construct(array $config = [])
     {
         if (! empty($config)) {
-            foreach ($config as $key => $values) {
-                foreach ($values as $value) {
-                    $this->{strtolower($key)}($value[0], $value[1]);
+            // loop through routes and register a Route object
+            if (isset($config['routes'])) {
+                foreach ($config['routes'] as $key => $values) {
+                    foreach ($values as $value) {
+                        $this->{strtolower($key)}($value[0], $value[1]);
+                    }
+                }
+            }
+
+            // loop through any hooks and register them in the same way as a route
+            // but store them in the hooks array
+            if (isset($config['hooks'])) {
+                foreach ($config['hooks'] as $key => $values) {
+                    foreach ($values as $value) {
+                        $this->{strtolower($key)}($value[0], $value[1]);
+                    }
                 }
             }
         }
@@ -51,6 +85,16 @@ class RouteCollection
     }
 
     /**
+     * Return array of Hooks
+     *
+     * @return array
+     */
+    public function getHooks()
+    {
+        return $this->hooks;
+    }
+
+    /**
      * Add a route to the routes collection
      *
      * @param  string         $route
@@ -58,7 +102,7 @@ class RouteCollection
      * @param  string         $method
      * @return void
      */
-    public function add($route, $destination, $method = 'ANY')
+    public function add($route, $destination, $method = 'ANY', $hook = null)
     {
         $closure = false;
 
@@ -80,7 +124,11 @@ class RouteCollection
 
         $action = (is_array($destination)) ? $destination[1] : null;
 
-        $this->routes[$method][] = new Route($route, $controller, $action, $method, $closure);
+        if (is_null($hook)) {
+            $this->routes[$method][] = new Route($route, $controller, $action, $method, $closure);
+        } else {
+            $this->hooks[$hook][$method][] = new Route($route, $controller, $action, $method, $closure);
+        }
     }
 
     /**
@@ -173,5 +221,31 @@ class RouteCollection
         $this->patch($resource, $destination . '@update');
         $this->delete($resource, $destination . '@delete');
         $this->options($route, $destination . '@options');
+    }
+
+    /**
+     * Register a hook to be run before the controller action
+     *
+     * @param  string         $route
+     * @param  string|closure $destination
+     * @param  string         $method
+     * @return
+     */
+    public function before($route, $destination, $method = 'ANY')
+    {
+        $this->add($route, $destination, $method, 'before');
+    }
+
+    /**
+     * Register a hook to be run after the controller action
+     *
+     * @param  string         $route
+     * @param  string|closure $destination
+     * @param  string         $method
+     * @return
+     */
+    public function after($route, $destination, $method = 'ANY')
+    {
+        $this->add($route, $destination, $method, 'after');
     }
 }

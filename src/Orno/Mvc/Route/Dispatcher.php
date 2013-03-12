@@ -30,6 +30,16 @@ class Dispatcher
     protected $route;
 
     /**
+     * @var Orno\Mvc\Route\Route
+     */
+    protected $before;
+
+    /**
+     * @var Orno\Mvc\Route\Route
+     */
+    protected $after;
+
+    /**
      * Constructor
      *
      * @param Orno\Mvc\Route\RouteCollection $collection
@@ -80,12 +90,21 @@ class Dispatcher
      * @param  string $method
      * @return boolean
      */
-    public function match($method = 'ANY')
+    public function match($method = 'ANY', $hook = null)
     {
-        foreach ($this->collection->getRoutes()[$method] as $route) {
+        $routes = (is_null($hook))
+                ? $this->collection->getRoutes()[$method]
+                : $this->collection->getHooks()[$hook][$method];
+
+        foreach ($routes as $route) {
             // is there a literal match?
             if ($route->getRoute() === $this->path) {
-                $this->route = $route;
+                if (is_null($hook)) {
+                    $this->route = $route;
+                } else {
+                    $this->{$hook} = $route;
+                }
+
                 return true;
             }
 
@@ -93,7 +112,12 @@ class Dispatcher
                 continue;
             }
 
-            $this->route = $route;
+            if (is_null($hook)) {
+                $this->route = $route;
+            } else {
+                $this->{$hook} = $route;
+            }
+
             return true;
         }
 
@@ -111,20 +135,48 @@ class Dispatcher
             throw new \RuntimeException('Environment must be set before dispatching');
         }
 
+        // match any before hooks
+        if (! $this->match($this->method, 'before')) {
+            $this->match('ANY', 'before');
+        }
+
+        // match the actual route
         if (! $this->match($this->method)) {
             if (! $this->match()) {
                 throw new \RuntimeException('Route not found for ' . $this->path);
             }
         }
 
+        // match any after hooks
+        if (! $this->match($this->method, 'after')) {
+            $this->match('ANY', 'after');
+        }
+
         $arguments = $this->getArguments();
 
-        $object = $this->collection->getContainer()->resolve($this->route->getController(), $arguments);
+        // run the before hook
+        if (! is_null($this->before)) {
+            $before = $this->collection->getContainer()->resolve($this->before->getController(), $arguments);
+            if (! $this->before->isClosure()) {
+                $before = call_user_func_array([$before, $this->before->getAction()], $arguments);
+            }
+        }
 
+        // run the actual route
+        $object = $this->collection->getContainer()->resolve($this->route->getController(), $arguments);
         if (! $this->route->isClosure()) {
             $object = call_user_func_array([$object, $this->route->getAction()], $arguments);
         }
 
+        // run the after route
+        if (! is_null($this->after)) {
+            $after = $this->collection->getContainer()->resolve($this->after->getController(), $arguments);
+            if (! $this->after->isClosure()) {
+                $after = call_user_func_array([$after, $this->after->getAction()], $arguments);
+            }
+        }
+
+        // output the results to the browser
         echo $object;
     }
 

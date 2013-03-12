@@ -6,6 +6,52 @@ use Orno\Mvc\Route\Dispatcher;
 
 class DispatcherTest extends PHPUnit_Framework_Testcase
 {
+    public function testBeforeAndAfterHooks() {
+        $route = new RouteCollection;
+
+        $route->before('/test', function () {
+            return 'before';
+        });
+
+        $route->add('/test', function() {
+            return 'controller';
+        });
+
+        $route->after('/test', function() {
+            return 'after';
+        });
+
+        $dispatch = new Dispatcher($route);
+        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test', 'REQUEST_METHOD' => 'GET']);
+
+        $this->assertTrue($dispatch->match('ANY', 'before'));
+        $this->assertTrue($dispatch->match('ANY'));
+        $this->assertTrue($dispatch->match('ANY', 'after'));
+    }
+
+    public function testBeforeAndAfterHooksWithWildcards() {
+        $route = new RouteCollection;
+
+        $route->before('/test/(:catchall)', function () {
+            return 'before';
+        });
+
+        $route->add('/test/(id)/(name)', function() {
+            return 'controller';
+        });
+
+        $route->after('/test/(:catch-all)', function() {
+            return 'after';
+        });
+
+        $dispatch = new Dispatcher($route);
+        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/id/name', 'REQUEST_METHOD' => 'GET']);
+
+        $this->assertTrue($dispatch->match('ANY', 'before'));
+        $this->assertTrue($dispatch->match('ANY'));
+        $this->assertTrue($dispatch->match('ANY', 'after'));
+    }
+
     public function testMatchDoesNotExist()
     {
         $route = new RouteCollection;
@@ -125,7 +171,9 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
+        $route->before('/', 'Assets\OrnoTest\Controller@before');
         $route->add('/', 'Assets\OrnoTest\Controller@index');
+        $route->after('/', 'Assets\OrnoTest\Controller@index', 'GET');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
@@ -142,9 +190,17 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
+        $route->before('/test/(:catchall)', function() {
+            return true;
+        }, 'POST');
+
         $route->post('/test/(argument)', function ($argument) {
             return $argument;
         });
+
+        $route->after('/test/(:catchall)', function() {
+            return true;
+        }, 'POST');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/hello', 'REQUEST_METHOD' => 'POST']);
@@ -164,9 +220,13 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
+
+
         $route->add('/', function () {
             return 'Hello World';
         });
+
+
 
         $dispatch = new Dispatcher($route);
 
