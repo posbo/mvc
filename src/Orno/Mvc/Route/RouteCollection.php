@@ -116,7 +116,7 @@ class RouteCollection
         }
 
         if ($destination instanceof Closure) {
-            $controller = $route;
+            $controller = (is_null($hook)) ? $route : $hook . ':' . $route;
             $closure    = true;
 
             $this->getContainer()->register($route, $destination, true);
