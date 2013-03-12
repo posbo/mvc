@@ -61,8 +61,21 @@ class Route
 
         $this->setSegments($route);
 
-        $route = preg_replace('/\/\((\?.*?)\)/', '(\/.+?)?', $route);
-        $route = preg_replace('/\([^\/].*?\)/', '(.+?)', $route);
+        $patterns = [
+            '/\/\((\?.*?)\)/',
+            '/\([^\/].*?\)/',
+            '/\/\(:catch-all\)/',
+            '/\/\(:catchall\)/'
+        ];
+
+        $replacements = [
+            '(\/.+?)?',
+            '(.+?)',
+            '(\/.+)?',
+            '(\/.+)?'
+        ];
+
+        $route = preg_replace($patterns, $replacements, $route);
         $this->route = $route;
     }
 
