@@ -33,7 +33,7 @@ class XmlRenderer implements ArrayAccess, RendererInterface
         $this->arrayToXml($this->data, $xml);
 
         header('Content-Type: text/xml');
-        echo $xml->asXml();
+        return $xml->asXml();
     }
 
     /**
