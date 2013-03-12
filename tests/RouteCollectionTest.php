@@ -49,6 +49,7 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
+        $route->add('/any/route', 'Controller@anyAction');
         $route->get('/get/route', 'Controller@getAction');
         $route->post('/post/route', 'Controller@postAction');
         $route->put('/put/route', 'Controller@putAction');
@@ -56,7 +57,7 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
         $route->delete('/delete/route', 'Controller@deleteAction');
         $route->options('/options/route', 'Controller@optionsAction');
 
-        $this->assertSame(count($route->getRoutes()), 6);
+        $this->assertSame(count($route->getRoutes()), 7);
 
         foreach($route->getRoutes() as $method) {
             foreach ($method as $route) {

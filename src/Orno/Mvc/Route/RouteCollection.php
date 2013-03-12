@@ -15,6 +15,7 @@ class RouteCollection
      * @var array
      */
     protected $routes = [
+        'ANY'     => [],
         'GET'     => [],
         'POST'    => [],
         'PUT'     => [],
@@ -23,6 +24,11 @@ class RouteCollection
         'OPTIONS' => []
     ];
 
+    /**
+     * Constructor
+     *
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
         if (! empty($config)) {
@@ -52,7 +58,7 @@ class RouteCollection
      * @param  string         $method
      * @return void
      */
-    public function add($route, $destination, $method = 'GET')
+    public function add($route, $destination, $method = 'ANY')
     {
         $closure = false;
 

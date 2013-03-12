@@ -3,11 +3,21 @@
 interface RendererInterface
 {
     /**
-     * Render the view object
+     * Import a php view as a snippet
      *
+     * @param  string $key
+     * @param  string $path
      * @return void
      */
-    public function render();
+    public function snippet($key = null, $path = null);
+
+    /**
+     * Render the view object
+     *
+     * @param  string $layout
+     * @return void
+     */
+    public function render($layout = null);
 
     /**
      * Set a data value

@@ -80,7 +80,7 @@ class Dispatcher
      * @param  string $method
      * @return boolean
      */
-    public function match($method = 'GET')
+    public function match($method = 'ANY')
     {
         foreach ($this->collection->getRoutes()[$method] as $route) {
             // is there a literal match?
@@ -103,7 +103,7 @@ class Dispatcher
     /**
      * Dispatch the route
      *
-     * @return mixed
+     * @return void
      */
     public function run()
     {
@@ -125,7 +125,7 @@ class Dispatcher
             $object = call_user_func_array([$object, $this->route->getAction()], $arguments);
         }
 
-        return $object;
+        echo $object;
     }
 
     /**

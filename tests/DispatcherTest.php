@@ -113,7 +113,12 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
 
-        $this->assertSame($dispatch->run(), 'Hello World');
+        ob_start();
+        $dispatch->run();
+        $result = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertSame($result, 'Hello World');
     }
 
     public function testDispatchesControllerAction()
@@ -125,21 +130,31 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
 
-        $this->assertSame($dispatch->run(), 'Hello World');
+        ob_start();
+        $dispatch->run();
+        $result = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertSame($result, 'Hello World');
     }
 
     public function testArgumentsPassedToAction()
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(argument)', function ($argument) {
+        $route->post('/test/(argument)', function ($argument) {
             return $argument;
         });
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/hello', 'REQUEST_METHOD' => 'POST']);
 
-        $this->assertSame($dispatch->run(), 'hello');
+        ob_start();
+        $dispatch->run();
+        $result = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertSame($result, 'hello');
     }
 
     /**

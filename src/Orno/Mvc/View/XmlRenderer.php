@@ -12,11 +12,21 @@ class XmlRenderer implements ArrayAccess, RendererInterface
     protected $data = [];
 
     /**
-     * Render the data array as a json string
+     * Only used in Orno\Mvc\View\PhpRenderer
+     *
+     * @return boolean
+     */
+    public function snippet($key = null, $path = null)
+    {
+        return false;
+    }
+
+    /**
+     * Render the data array as xml
      *
      * @return string
      */
-    public function render()
+    public function render($layout = null)
     {
         $xml = new SimpleXMLElement('<root/>');
 

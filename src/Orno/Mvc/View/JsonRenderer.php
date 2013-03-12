@@ -11,13 +11,24 @@ class JsonRenderer implements ArrayAccess, RendererInterface
     protected $data = [];
 
     /**
+     * Only used in Orno\Mvc\View\PhpRenderer
+     *
+     * @return boolean
+     */
+    public function snippet($key = null, $path = null)
+    {
+        return false;
+    }
+
+    /**
      * Render the data array as a json string
      *
      * @return string
      */
-    public function render()
+    public function render($layout = null)
     {
-        echo json_encode($this->data);
+        header('Content-type: application/json');
+        return json_encode($this->data);
     }
 
     /**
