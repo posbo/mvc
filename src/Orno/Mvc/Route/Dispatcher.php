@@ -142,7 +142,11 @@ class Dispatcher
 
         // match the actual route
         if (! $this->match($this->method)) {
+            // if not route found for the method we fall back
+            // to ANY method for a match
             if (! $this->match()) {
+                // if still no match is found check for a 404 route
+                // @todo 404 matching...
                 throw new \RuntimeException('Route not found for ' . $this->path);
             }
         }
@@ -153,6 +157,8 @@ class Dispatcher
         }
 
         $arguments = $this->getArguments();
+
+        ob_start();
 
         // run the before hook
         if (! is_null($this->before)) {
@@ -168,6 +174,9 @@ class Dispatcher
             $object = call_user_func_array([$object, $this->route->getAction()], $arguments);
         }
 
+        // output the results to the browser
+        echo $object;
+
         // run the after route
         if (! is_null($this->after)) {
             $after = $this->collection->getContainer()->resolve($this->after->getController(), $arguments);
@@ -176,8 +185,10 @@ class Dispatcher
             }
         }
 
-        // output the results to the browser
-        echo $object;
+        $finalOutput = ob_get_contents();
+        ob_end_clean();
+
+        echo $finalOutput;
     }
 
     /**

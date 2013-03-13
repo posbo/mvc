@@ -56,8 +56,8 @@ class RouteCollection
             // loop through routes and register a Route object
             if (isset($config['routes'])) {
                 foreach ($config['routes'] as $key => $values) {
-                    foreach ($values as $value) {
-                        $this->{strtolower($key)}($value[0], $value[1]);
+                    foreach ($values as $route => $destination) {
+                        $this->{strtolower($key)}($route, $destination);
                     }
                 }
             }
@@ -66,8 +66,8 @@ class RouteCollection
             // but store them in the hooks array
             if (isset($config['hooks'])) {
                 foreach ($config['hooks'] as $key => $values) {
-                    foreach ($values as $value) {
-                        $this->{strtolower($key)}($value[0], $value[1]);
+                    foreach ($values as $route => $destination) {
+                        $this->{strtolower($key)}($route, $destination);
                     }
                 }
             }

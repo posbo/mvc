@@ -220,13 +220,9 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-
-
         $route->add('/', function () {
             return 'Hello World';
         });
-
-
 
         $dispatch = new Dispatcher($route);
 
