@@ -111,7 +111,7 @@ class RouteCollection
             $controller  = $destination[0];
 
             if (! $this->getContainer()->registered($destination[0])) {
-                $this->getContainer()->register($destination[0], null, true);
+                $this->getContainer()->register($destination[0], null);
             }
         }
 
@@ -119,7 +119,7 @@ class RouteCollection
             $controller = (is_null($hook)) ? $route : $hook . ':' . $route;
             $closure    = true;
 
-            $this->getContainer()->register($route, $destination, true);
+            $this->getContainer()->register($controller, $destination);
         }
 
         $action = (is_array($destination)) ? $destination[1] : null;
