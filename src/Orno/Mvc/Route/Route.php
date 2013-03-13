@@ -62,6 +62,8 @@ class Route
         $this->setSegments($route);
 
         $patterns = [
+            '/\/\(:any\)/',
+            '/\/\(:all\)/',
             '/\/\(:catch-all\)/',
             '/\/\(:catchall\)/',
             '/\/\((\?.*?)\)/',
@@ -69,6 +71,8 @@ class Route
         ];
 
         $replacements = [
+            '(\/.+)?',
+            '(\/.+)?',
             '(\/.+)?',
             '(\/.+)?',
             '(\/.+?)?',

@@ -212,7 +212,7 @@ class RouteCollection
      */
     public function restful($route, $destination)
     {
-        $resource = rtrim($route, '/') . '/(?id)';
+        $resource = rtrim($route, '/') . '/(id)';
 
         $this->get($route, $destination . '@getAll');
         $this->get($resource, $destination . '@get');
