@@ -207,7 +207,9 @@ class Dispatcher
 
         if (! empty($keys)) {
             foreach ($keys as $key => $val) {
-                $arguments[] = $segments[$key];
+                if (isset($seggments[$key])) {
+                    $arguments[] = $segments[$key];
+                }
             }
         }
 
