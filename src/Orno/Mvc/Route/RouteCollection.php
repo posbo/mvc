@@ -57,6 +57,7 @@ class RouteCollection
             if (isset($config['routes'])) {
                 foreach ($config['routes'] as $key => $values) {
                     foreach ($values as $route => $destination) {
+                        $key = str_replace('any', 'add', $key);
                         $this->{strtolower($key)}($route, $destination);
                     }
                 }
@@ -107,7 +108,7 @@ class RouteCollection
         $closure = false;
 
         if (is_string($destination)) {
-            $destination = explode('@', $destination);
+            $destination = explode('::', $destination);
             $controller  = $destination[0];
 
             if (! $this->getContainer()->registered($destination[0])) {
