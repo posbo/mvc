@@ -131,4 +131,4 @@ $route->delete('/user/(id)', 'Application\Controller\UserController::delete'); /
 $route->options('/user', 'Application\Controller\UserController::options'); // return a header with the api methods available
 ```
 
-A [RestfulControllerInterface](/orno/mvc/blob/master/src/Orno/Mvc/Controller/RestfulControllerInterface.php) is included in the component to help you build RESTful controllers.
+A [RestfulControllerInterface](/src/Orno/Mvc/Controller/RestfulControllerInterface.php) is included in the component to help you build RESTful controllers.
