@@ -6,18 +6,19 @@ use Orno\Mvc\Route\Dispatcher;
 
 class DispatcherTest extends PHPUnit_Framework_Testcase
 {
-    public function testBeforeAndAfterHooks() {
+    public function testBeforeAndAfterHooks()
+    {
         $route = new RouteCollection;
 
         $route->before('/test', function () {
             return 'before';
         });
 
-        $route->add('/test', function() {
+        $route->add('/test', function () {
             return 'controller';
         });
 
-        $route->after('/test', function() {
+        $route->after('/test', function () {
             return 'after';
         });
 
@@ -36,11 +37,11 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return 'before';
         });
 
-        $route->add('/test/(id)/(name)', function() {
+        $route->add('/test/(id)/(name)', function () {
             return 'controller';
         });
 
-        $route->after('/test/(:catch-all)', function() {
+        $route->after('/test/(:catch-all)', function () {
             return 'after';
         });
 
@@ -56,7 +57,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test', 'TestController@testAction');
+        $route->get('/test', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
@@ -68,7 +69,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/', 'TestController@testAction');
+        $route->get('/', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
@@ -80,7 +81,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(required)', 'TestController@testAction');
+        $route->get('/test/(required)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'QUERY_STRING' => 'test=test', 'REQUEST_METHOD' => 'GET']);
@@ -92,7 +93,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(required)/(required2)', 'TestController@testAction');
+        $route->get('/test/(required)/(required2)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment/somesegment2', 'REQUEST_METHOD' => 'GET']);
@@ -104,7 +105,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(required)/(?optional)', 'TestController@testAction');
+        $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment/somesegment2', 'REQUEST_METHOD' => 'GET']);
@@ -116,7 +117,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(required)/(?optional)', 'TestController@testAction');
+        $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'REQUEST_METHOD' => 'GET']);
@@ -128,7 +129,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(?optional)', 'TestController@testAction');
+        $route->get('/test/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'REQUEST_METHOD' => 'GET']);
@@ -140,7 +141,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->get('/test/(?optional)', 'TestController@testAction');
+        $route->get('/test/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test', 'REQUEST_METHOD' => 'GET']);
@@ -171,9 +172,9 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->before('/', 'Assets\OrnoTest\Controller@before');
-        $route->add('/', 'Assets\OrnoTest\Controller@index');
-        $route->after('/', 'Assets\OrnoTest\Controller@index', 'GET');
+        $route->before('/', 'Assets\OrnoTest\Controller::before');
+        $route->add('/', 'Assets\OrnoTest\Controller::index');
+        $route->after('/', 'Assets\OrnoTest\Controller::index', 'GET');
 
         $dispatch = new Dispatcher($route);
         $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
@@ -190,7 +191,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
     {
         $route = new RouteCollection;
 
-        $route->before('/test/(:catchall)', function() {
+        $route->before('/test/(:catchall)', function () {
             return true;
         }, 'POST');
 
@@ -198,7 +199,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return $argument;
         });
 
-        $route->after('/test/(:catchall)', function() {
+        $route->after('/test/(:catchall)', function () {
             return true;
         }, 'POST');
 
