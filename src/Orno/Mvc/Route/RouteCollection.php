@@ -52,7 +52,7 @@ class RouteCollection
      */
     public function __construct(array $config = [])
     {
-        if (isset($config['roots'])) {
+        if (isset($config['routes'])) {
             $this->setRoutes($config['routes']);
         }
 
