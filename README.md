@@ -1,5 +1,7 @@
 # Orno\Mvc
 
+[![Buildi Status](https://travis-ci.org/orno/mvc.png?branch=master)](https://travis-ci.org/orno/mvc)
+
 Orno\Mvc is a Model/View/Controller and Routing layer to build basic applications. It uses [Orno\Di](https://github.com/orno/di) to configure routed objects making development faster and easier.
 
 ## Basic Usage
