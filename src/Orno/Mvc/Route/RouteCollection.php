@@ -52,25 +52,40 @@ class RouteCollection
      */
     public function __construct(array $config = [])
     {
-        if (! empty($config)) {
-            // loop through routes and register a Route object
-            if (isset($config['routes'])) {
-                foreach ($config['routes'] as $key => $values) {
-                    foreach ($values as $route => $destination) {
-                        $key = str_replace('any', 'add', $key);
-                        $this->{strtolower($key)}($route, $destination);
-                    }
-                }
-            }
+        if (isset($config['roots'])) {
+            $this->setRoutes($config['routes']);
+        }
 
-            // loop through any hooks and register them in the same way as a route
-            // but store them in the hooks array
-            if (isset($config['hooks'])) {
-                foreach ($config['hooks'] as $key => $values) {
-                    foreach ($values as $route => $destination) {
-                        $this->{strtolower($key)}($route, $destination);
-                    }
-                }
+        if (isset($config['hooks'])) {
+            $this->setHooks($config['hooks']);
+        }
+    }
+
+    /**
+     * Set routes from array
+     *
+     * @param array
+     */
+    public function setRoutes(array $routes = [])
+    {
+        foreach ($routes as $key => $values) {
+            foreach ($values as $route => $destination) {
+                $key = str_replace('any', 'add', $key);
+                $this->{strtolower($key)}($route, $destination);
+            }
+        }
+    }
+
+    /**
+     * Set hooks from array
+     *
+     * @param array
+     */
+    public function setHooks(array $hooks = [])
+    {
+        foreach ($hooks as $key => $values) {
+            foreach ($values as $route => $destination) {
+                $this->{strtolower($key)}($route, $destination);
             }
         }
     }

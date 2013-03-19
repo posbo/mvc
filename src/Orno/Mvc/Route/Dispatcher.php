@@ -69,6 +69,8 @@ class Dispatcher
      */
     public function setEnvironment(array $server)
     {
+        // TODO cli environment
+
         if (! empty($server)) {
             $route = str_replace($server['SCRIPT_NAME'], null, $server['REQUEST_URI']);
             if (isset($server['QUERY_STRING']) && $server['QUERY_STRING'] !== '') {
