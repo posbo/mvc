@@ -9,6 +9,9 @@ use stdClass;
 
 class ViewOutputTest extends PHPUnit_Framework_Testcase
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testJsonOutputsCorrectly()
     {
         $view = new JsonRenderer;
@@ -17,6 +20,9 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
         $this->assertTrue(json_decode($view->render()) instanceof stdClass);
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testXmlOutputsCorrectly()
     {
         $view = new XmlRenderer;
@@ -25,6 +31,9 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
         $this->assertTrue(is_string($view->render()));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testPhpOutputsCorrectly()
     {
         $view = new PhpRenderer;
