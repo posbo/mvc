@@ -230,13 +230,13 @@ class RouteCollection
     {
         $resource = rtrim($route, '/') . '/(id)';
 
-        $this->get($route, $destination . '@getAll');
-        $this->get($resource, $destination . '@get');
-        $this->post($route, $destination . '@create');
-        $this->put($resource, $destination . '@update');
-        $this->patch($resource, $destination . '@update');
-        $this->delete($resource, $destination . '@delete');
-        $this->options($route, $destination . '@options');
+        $this->get($route, $destination . '::getAll');
+        $this->get($resource, $destination . '::get');
+        $this->post($route, $destination . '::create');
+        $this->put($resource, $destination . '::update');
+        $this->patch($resource, $destination . '::update');
+        $this->delete($resource, $destination . '::delete');
+        $this->options($route, $destination . '::options');
     }
 
     /**
