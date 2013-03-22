@@ -149,7 +149,7 @@ class Dispatcher
             if (! $this->match()) {
                 // if still no match is found check for a 404 route
                 // @todo 404 matching...
-                throw new \RuntimeException('Route not found for ' . $this->path);
+                throw new \RuntimeException('Route not found for ' . $this->path, 404);
             }
         }
 
