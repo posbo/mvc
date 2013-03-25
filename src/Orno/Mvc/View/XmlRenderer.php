@@ -12,11 +12,11 @@ class XmlRenderer implements ArrayAccess, RendererInterface
     protected $data = [];
 
     /**
-     * Only used in Orno\Mvc\View\PhpRenderer
+     * Only used in Orno\Mvc\View\Renderer
      *
      * @return boolean
      */
-    public function snippet($key = null, $path = null)
+    public function region($region = null, $content = null, array $data = [])
     {
         return false;
     }

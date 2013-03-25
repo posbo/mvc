@@ -2,9 +2,8 @@
 
 use ArrayAccess;
 use Orno\Mvc\View\RendererInterface;
-use Orno\Mvc\View\Template;
 
-class PhpRenderer implements ArrayAccess, RendererInterface
+class Renderer implements ArrayAccess, RendererInterface
 {
     /**
      * @var array
@@ -19,7 +18,7 @@ class PhpRenderer implements ArrayAccess, RendererInterface
     /**
      * @var array
      */
-    protected $snippets = [];
+    protected $regions = [];
 
     /**
      * Constructor
@@ -31,13 +30,53 @@ class PhpRenderer implements ArrayAccess, RendererInterface
         $this->layout = $layout;
     }
 
-    public function snippet($key = null, $path = null)
+    /**
+     * Set or write to a region
+     *
+     * @param  string  $region
+     * @param  string  $content
+     * @param  array   $data
+     * @param  boolean $render
+     * @return void
+     */
+    public function region($region = null, $content = null, array $data = [])
     {
-        if (is_null($key) || is_null($path)) {
-            throw new \InvalidArgumentException('A snippet must be provided with a key and a filepath');
+        if (is_null($region)) {
+            throw new \InvalidArgumentException('A region must be provided with a region name');
         }
 
-        $this->snippets[$key][] = $path;
+        // are we simply rendering a region?
+        if (is_null($content)) {
+            if (isset($this->regions[$region])) {
+                ob_start();
+                foreach ($this->regions[$region] as $region) {
+                    echo $region;
+                }
+                $content = ob_get_contents();
+                ob_end_clean();
+            }
+            echo (! is_null($content)) ? $content : '';
+            return;
+        }
+
+        // do we have any data to set?
+        foreach ($data as $key => $value) {
+            $this->{$key} = $value;
+        }
+
+        // are we assigning a view script to a region?
+        if (file_exists($content)) {
+            ob_start();
+            include $content;
+            $this->regions[$region][] = ob_get_contents();
+            ob_end_clean();
+            return;
+        }
+
+        // if we've got this far let's assume we are just assigning a string of
+        // content to a region directly
+        $this->regions[$region][] = $content;
+        return;
     }
 
     /**
@@ -53,15 +92,6 @@ class PhpRenderer implements ArrayAccess, RendererInterface
 
         if (! is_null($layout)) {
             $this->layout = $layout;
-        }
-
-        foreach ($this->snippets as $key => $paths) {
-            ob_start();
-            foreach ($paths as $path) {
-                include $path;
-            }
-            $this->{$key} = ob_get_contents();
-            ob_end_clean();
         }
 
         ob_start();

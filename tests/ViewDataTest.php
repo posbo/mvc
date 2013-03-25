@@ -3,7 +3,7 @@
 use PHPUnit_Framework_Testcase;
 use Orno\Mvc\View\JsonRenderer;
 use Orno\Mvc\View\XmlRenderer;
-use Orno\Mvc\View\PhpRenderer;
+use Orno\Mvc\View\Renderer;
 use SimpleXMLElement;
 
 class ViewDataTest extends PHPUnit_Framework_Testcase
@@ -12,7 +12,7 @@ class ViewDataTest extends PHPUnit_Framework_Testcase
     {
         $json = new JsonRenderer;
         $xml  = new XmlRenderer;
-        $php  = new PhpRenderer;
+        $php  = new Renderer;
 
         $json->data = 'json';
         $xml->data = 'xml';
@@ -38,7 +38,7 @@ class ViewDataTest extends PHPUnit_Framework_Testcase
     {
         $json = new JsonRenderer;
         $xml  = new XmlRenderer;
-        $php  = new PhpRenderer;
+        $php  = new Renderer;
 
         $json['data'] = 'json';
         $xml['data'] = 'xml';

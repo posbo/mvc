@@ -3,13 +3,14 @@
 interface RendererInterface
 {
     /**
-     * Import a php view as a snippet
+     * Set content to a region or render a region
      *
-     * @param  string $key
-     * @param  string $path
+     * @param  string $region
+     * @param  string $content
+     * @param  array  $data
      * @return void
      */
-    public function snippet($key = null, $path = null);
+    public function region($region = null, $content = null, array $data = []);
 
     /**
      * Render the view object

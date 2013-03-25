@@ -1,1 +1,1 @@
-<?= $this->content ?>
+<?= $this->region('content') ?>
