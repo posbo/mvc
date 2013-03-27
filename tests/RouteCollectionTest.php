@@ -21,10 +21,14 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
             ],
             'hooks' => [
                 'before' => [
-                    '/test/route' => 'TestController::testAction'
+                    'any' => [
+                        '/test/route' => 'TestController::testAction'
+                    ]
                 ],
                 'after' => [
-                    '/test/route2' => function () { return true; }
+                    'any' => [
+                        '/test/route2' => function () { return true; }
+                    ]
                 ]
             ]
         ];
