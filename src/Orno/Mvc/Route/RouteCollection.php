@@ -81,11 +81,14 @@ class RouteCollection
      *
      * @param array
      */
-    public function setHooks(array $hooks = [])
+    public function setHooks(array $config = [])
     {
-        foreach ($hooks as $key => $values) {
-            foreach ($values as $route => $destination) {
-                $this->{strtolower($key)}($route, $destination);
+        foreach ($config as $event => $values) {
+            foreach ($values as $method => $hooks) {
+                foreach ($hooks as $route => $destination)
+                    $method = str_replace('any', 'add', $method);
+                    $this->{strtolower($event)}($route, $destination, $method);
+                }
             }
         }
     }
@@ -247,8 +250,9 @@ class RouteCollection
      * @param  string         $method
      * @return
      */
-    public function before($route, $destination, $method = 'ANY')
+    public function before($route, $destination, $method = null)
     {
+        $method = (! is_null($method)) ? strtoupper($method) : 'ANY';
         $this->add($route, $destination, $method, 'before');
     }
 
@@ -260,8 +264,9 @@ class RouteCollection
      * @param  string         $method
      * @return
      */
-    public function after($route, $destination, $method = 'ANY')
+    public function after($route, $destination, $method = null)
     {
+        $method = (! is_null($method)) ? strtoupper($method) : 'ANY';
         $this->add($route, $destination, $method, 'after');
     }
 }
