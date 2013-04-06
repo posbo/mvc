@@ -1,6 +1,7 @@
 <?php namespace Orno\Mvc\Route;
 
 use Orno\Mvc\Route\RouteCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class Dispatcher
 {
@@ -177,7 +178,11 @@ class Dispatcher
         }
 
         // output the results to the browser
-        echo $object;
+        if ($object instanceof Response) {
+            $object->send();
+        } else {
+            echo $object;
+        }
 
         // run the after route
         if (! is_null($this->after)) {
