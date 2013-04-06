@@ -23,7 +23,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         });
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test', 'GET');
 
         $this->assertTrue($dispatch->match('ANY', 'before'));
         $this->assertTrue($dispatch->match('ANY'));
@@ -46,7 +46,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         });
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/id/name', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/id/name', 'GET');
 
         $this->assertTrue($dispatch->match('ANY', 'before'));
         $this->assertTrue($dispatch->match('ANY'));
@@ -60,7 +60,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/', 'GET');
 
         $this->assertFalse($dispatch->match('GET'));
     }
@@ -72,7 +72,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -84,7 +84,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(required)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'QUERY_STRING' => 'test=test', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/somesegment', 'get');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -96,7 +96,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(required)/(required2)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment/somesegment2', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/somesegment/somesegment2', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -108,7 +108,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment/somesegment2', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/somesegment/somesegment2', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -120,7 +120,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/somesegment', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -132,7 +132,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test/somesegment', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test/somesegment', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -144,7 +144,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->get('/test/(?optional)', 'TestController::testAction');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/test', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/test', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -158,7 +158,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         });
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/', 'GET');
 
         ob_start();
         $dispatch->run();
@@ -177,7 +177,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->after('/', 'Assets\OrnoTest\Controller::index', 'GET');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
+        $dispatch->override('/', 'GET');
 
         ob_start();
         $dispatch->run();
@@ -204,7 +204,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         }, 'POST');
 
         $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php/test/hello', 'REQUEST_METHOD' => 'POST']);
+        $dispatch->override('/test/hello', 'POST');
 
         ob_start();
         $dispatch->run();
@@ -212,34 +212,5 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         ob_end_clean();
 
         $this->assertSame($result, 'hello');
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testLackOfEnvironmentException()
-    {
-        $route = new RouteCollection;
-
-        $route->add('/', function () {
-            return 'Hello World';
-        });
-
-        $dispatch = new Dispatcher($route);
-
-        $dispatch->run();
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testRouteNotFoundException()
-    {
-        $route = new RouteCollection;
-
-        $dispatch = new Dispatcher($route);
-        $dispatch->setEnvironment(['SCRIPT_NAME' => '/index.php', 'REQUEST_URI' => '/index.php', 'REQUEST_METHOD' => 'GET']);
-
-        $dispatch->run();
     }
 }

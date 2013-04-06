@@ -1,7 +1,5 @@
 <?php namespace Orno\Mvc\Route;
 
-use Orno\Mvc\Controller\RestfulControllerInterface;
-
 class Route
 {
     /**

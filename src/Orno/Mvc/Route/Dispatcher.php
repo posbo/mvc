@@ -2,6 +2,7 @@
 
 use Orno\Mvc\Route\RouteCollection;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 class Dispatcher
 {
@@ -41,13 +42,20 @@ class Dispatcher
     protected $after;
 
     /**
+     * @var Symfony\Component\HttpFoundation\Request
+     */
+    protected $request;
+
+    /**
      * Constructor
      *
      * @param Orno\Mvc\Route\RouteCollection $collection
      */
-    public function __construct(RouteCollection $collection)
-    {
+    public function __construct(RouteCollection $collection) {
         $this->collection = $collection;
+        $this->request = Request::createFromGlobals();
+
+        $this->buildFromRequest();
     }
 
     /**
@@ -63,26 +71,36 @@ class Dispatcher
     }
 
     /**
-     * Set the route environment from the $_SERVER array or mock
+     * Build the environment from the Request Object
      *
-     * @param  array                     $server
+     * @return void
+     */
+    protected function buildFromRequest()
+    {
+        $this->path = $this->request->getPathInfo();
+        $this->method = $this->request->getMethod();
+
+        $this->setSegments();
+    }
+
+    /**
+     * Override any route params.
+     *
+     * @param  string                    $path
+     * @param  string                    $method
      * @return Orno\Mvc\Route\Dispatcher $this
      */
-    public function setEnvironment(array $server)
+    public function override($path = null, $method = null)
     {
-        // TODO cli environment
-
-        if (! empty($server)) {
-            $route = str_replace($server['SCRIPT_NAME'], null, $server['REQUEST_URI']);
-            if (isset($server['QUERY_STRING']) && $server['QUERY_STRING'] !== '') {
-                $route = str_replace('?' . $server['QUERY_STRING'], null, $route);
-            }
-            $route = rtrim($route, '/');
-            $this->path   = ($route === '') ? '/' : $route;
-            $this->method = $server['REQUEST_METHOD'];
-
-            $this->setSegments();
+        if (! is_null($path)) {
+            $this->path = $path;
         }
+
+        if (! is_null($method)) {
+            $this->method = strtoupper($method);
+        }
+
+        $this->setSegments();
 
         return $this;
     }
@@ -143,21 +161,22 @@ class Dispatcher
             $this->match('ANY', 'before');
         }
 
-        // match the actual route
-        if (! $this->match($this->method)) {
-            // if not route found for the method we fall back
-            // to ANY method for a match
-            if (! $this->match()) {
-                // if still no match is found check for a 404 route
-                // @todo 404 matching...
-                throw new \RuntimeException('Route not found for ' . $this->path, 404);
-            }
-        }
-
         // match any after hooks
         if (! $this->match($this->method, 'after')) {
             $this->match('ANY', 'after');
         }
+
+        // match the actual route
+        if (! $this->match($this->method)) {
+            // if no route found for the method we fall back
+            // to ANY method for a match
+            if (! $this->match()) {
+                // TODO: Custom 404 routes
+                (new Response('404 - Page Not Found', 404))->send();
+            }
+        }
+
+
 
         $arguments = $this->getArguments();
 
