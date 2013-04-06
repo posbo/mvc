@@ -6,6 +6,7 @@ use Orno\Mvc\View\XmlRenderer;
 use Orno\Mvc\View\Renderer;
 use SimpleXMLElement;
 use stdClass;
+use Symfony\Component\HttpFoundation\Response;
 
 class ViewOutputTest extends PHPUnit_Framework_Testcase
 {
@@ -15,9 +16,8 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     public function testJsonOutputsCorrectly()
     {
         $view = new JsonRenderer;
-        $this->assertFalse($view->region());
         $view->data = 'hello';
-        $this->assertTrue(json_decode($view->render()) instanceof stdClass);
+        $this->assertTrue($view->render() instanceof Response);
     }
 
     /**
@@ -26,9 +26,8 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     public function testXmlOutputsCorrectly()
     {
         $view = new XmlRenderer;
-        $this->assertFalse($view->region());
         $view->data = 'hello';
-        $this->assertTrue(is_string($view->render()));
+        $this->assertTrue($view->render() instanceof Response);
     }
 
     /**
@@ -37,8 +36,9 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     public function testPhpOutputsCorrectly()
     {
         $view = new Renderer;
+        $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
         $view->region('content', __DIR__ . '/Assets/views/snippet.php');
-        $this->assertTrue(is_string($view->render(__DIR__ . '/Assets/views/layout.php')));
+        $this->assertTrue($view->render() instanceof Response);
     }
 
     public function testRegionAcceptsDataArray()
@@ -59,8 +59,9 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     public function testRegionAcceptsContentString()
     {
         $view = new Renderer;
+        $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
         $view->region('content', 'Hello World!');
-        $this->assertTrue(is_string($view->render(__DIR__ . '/Assets/views/layout.php')));
+        $this->assertTrue($view->render() instanceof Response);
     }
 
     /**
@@ -79,5 +80,14 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     {
         $view = new Renderer;
         $view->render();
+    }
+
+    public function testResolvingHelper()
+    {
+        $view = new Renderer;
+        $view->getContainer()->register('testHelper', function ($hello, $world) {
+            return $hello . $world;
+        });
+        $this->assertSame($view->testHelper('Hello ', 'World'), 'Hello World');
     }
 }
