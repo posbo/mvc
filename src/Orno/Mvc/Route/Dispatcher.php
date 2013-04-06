@@ -113,6 +113,8 @@ class Dispatcher
      */
     public function match($method = 'ANY', $hook = null)
     {
+        $match = false;
+
         $routes = (is_null($hook))
                 ? $this->collection->getRoutes()[$method]
                 : $this->collection->getHooks()[$hook][$method];
@@ -139,10 +141,22 @@ class Dispatcher
                 $this->{$hook} = $route;
             }
 
+            // match the before and after hooks for the found route
+            if (is_null($hook)) {
+                $this->match($this->method, 'before');
+                $this->match($this->method, 'after');
+            }
+
             return true;
         }
 
-        return false;
+        // if we have a request method and have not matched a route, we need to
+        // try to match a route bound to ANY request method
+        if ($method !== 'ANY') {
+            $match = $this->match('ANY', $hook);
+        }
+
+        return $match;
     }
 
     /**
@@ -156,39 +170,18 @@ class Dispatcher
             throw new \RuntimeException('Environment must be set before dispatching');
         }
 
-        // match any before hooks
-        if (! $this->match($this->method, 'before')) {
-            $this->match('ANY', 'before');
-        }
-
-        // match any after hooks
-        if (! $this->match($this->method, 'after')) {
-            $this->match('ANY', 'after');
-        }
-
         // match the actual route
         if (! $this->match($this->method)) {
-            // if no route found for the method we fall back
-            // to ANY method for a match
-            if (! $this->match()) {
-                // TODO: Custom 404 routes
-                (new Response('404 - Page Not Found', 404))->send();
-            }
+            // TODO: Custom 404 routes
+            (new Response('404 - Page Not Found', 404))->send();
         }
-
-
 
         $arguments = $this->getArguments();
 
         ob_start();
 
-        // run the before hook
-        if (! is_null($this->before)) {
-            $before = $this->collection->getContainer()->resolve($this->before->getController(), $arguments);
-            if (! $this->before->isClosure()) {
-                $before = call_user_func_array([$before, $this->before->getAction()], $arguments);
-            }
-        }
+        // check and call a before hook
+        $this->callHook('before', $arguments);
 
         // run the actual route
         $object = $this->collection->getContainer()->resolve($this->route->getController(), $arguments);
@@ -196,25 +189,34 @@ class Dispatcher
             $object = call_user_func_array([$object, $this->route->getAction()], $arguments);
         }
 
-        // output the results to the browser
+        // send the response to the buffer
         if ($object instanceof Response) {
             $object->send();
         } else {
-            echo $object;
+            (new Response($object, 200, ['content-type' => 'text/html']))->send();
         }
 
-        // run the after route
-        if (! is_null($this->after)) {
-            $after = $this->collection->getContainer()->resolve($this->after->getController(), $arguments);
-            if (! $this->after->isClosure()) {
-                $after = call_user_func_array([$after, $this->after->getAction()], $arguments);
-            }
-        }
+        // check and call an after hook
+        $this->callHook('after', $arguments);
 
         $finalOutput = ob_get_contents();
         ob_end_clean();
 
         echo $finalOutput;
+    }
+
+    public function callHook($event = null, array $arguments = [])
+    {
+        if (is_null($event)) {
+            return;
+        }
+
+        if (! is_null($this->{$event})) {
+            $return = $this->collection->getContainer()->resolve($this->{$event}->getController(), $arguments);
+            if (! $this->{$event}->isClosure()) {
+                call_user_func_array([$return, $this->{$event}->getAction()], $arguments);
+            }
+        }
     }
 
     /**
