@@ -86,7 +86,6 @@ class RouteCollection
         foreach ($config as $event => $values) {
             foreach ($values as $method => $hooks) {
                 foreach ($hooks as $route => $destination) {
-                    $method = str_replace('any', 'add', $method);
                     $this->{strtolower($event)}($route, $destination, $method);
                 }
             }

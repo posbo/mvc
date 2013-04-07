@@ -141,12 +141,6 @@ class Dispatcher
                 $this->{$hook} = $route;
             }
 
-            // match the before and after hooks for the found route
-            if (is_null($hook)) {
-                $this->match($method, 'before');
-                $this->match($method, 'after');
-            }
-
             return true;
         }
 
@@ -175,6 +169,10 @@ class Dispatcher
             // TODO: Custom 404 routes
             (new Response('404 - Page Not Found', 404))->send();
         }
+
+        // match any hooks
+        $this->match($this->method, 'before');
+        $this->match($this->method, 'after');
 
         $arguments = $this->getArguments();
 
