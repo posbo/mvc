@@ -37,7 +37,8 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     {
         $view = new Renderer;
         $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
-        $view->region('content', __DIR__ . '/Assets/views/snippet.php');
+        $view->addViewPath(__DIR__ . '/Assets/views/');
+        $view->region('content', 'snippet');
         $this->assertTrue($view->render() instanceof Response);
     }
 
@@ -48,7 +49,8 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
             'test' => 'Hello',
             'test2' => 'World'
         ];
-        $view->region('content', __DIR__ . '/Assets/views/snippet.php', $data);
+        $view->addViewPath(__DIR__ . '/Assets/views/');
+        $view->region('content', 'snippet', $data);
         $this->assertSame($view->test, 'Hello');
         $this->assertSame($view->test2, 'World');
     }
@@ -60,6 +62,7 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
     {
         $view = new Renderer;
         $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
+        $view->addViewPath(__DIR__ . '/Assets/views/');
         $view->region('content', 'Hello World!');
         $this->assertTrue($view->render() instanceof Response);
     }

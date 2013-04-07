@@ -78,6 +78,12 @@ abstract class AbstractRenderer implements ArrayAccess
             );
         }
 
+        if (empty($this->paths)) {
+            throw new Exception\ViewPathNotProvidedException(
+                'The Renderer must be provided with at least 1 view path'
+            );
+        }
+
         // are we simply rendering a region?
         if (is_null($content)) {
             if (isset($this->regions[$region])) {
@@ -97,13 +103,16 @@ abstract class AbstractRenderer implements ArrayAccess
             $this->{$key} = $value;
         }
 
-        // are we assigning a view script to a region?
-        if (file_exists($content)) {
-            ob_start();
-            include $content;
-            $this->regions[$region][] = ob_get_contents();
-            ob_end_clean();
-            return;
+        // loop through the view paths to find the view script
+        foreach ($this->paths as $path) {
+            $viewScript = rtrim($path, '/') . '/' . ltrim($content, '/') . '.php';
+            if (file_exists($viewScript)) {
+                ob_start();
+                include $viewScript;
+                $this->regions[$region][] = ob_get_contents();
+                ob_end_clean();
+                return;
+            }
         }
 
         // if we've got this far let's assume we are just assigning a string of
