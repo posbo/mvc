@@ -7,26 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 class Dispatcher
 {
     /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var array
-     */
-    protected $segments;
-
-    /**
-     * @var string
-     */
-    protected $method;
-
-    /**
-     * @var array
-     */
-    protected $arguments = [];
-
-    /**
      * @var Orno\Mvc\Route\Route
      */
     protected $route;
@@ -47,62 +27,26 @@ class Dispatcher
     protected $request;
 
     /**
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * @var string
+     */
+    protected $method;
+
+    /**
      * Constructor
      *
      * @param Orno\Mvc\Route\RouteCollection $collection
      */
-    public function __construct(RouteCollection $collection) {
+    public function __construct(RouteCollection $collection, $path = null, $method = null)
+    {
         $this->collection = $collection;
         $this->request = Request::createFromGlobals();
-
-        $this->buildFromRequest();
-    }
-
-    /**
-     * Explode the route path in to segments
-     *
-     * @return void
-     */
-    public function setSegments()
-    {
-        if (! is_null($this->path)) {
-            $this->segments = explode('/', trim($this->path, '/'));
-        }
-    }
-
-    /**
-     * Build the environment from the Request Object
-     *
-     * @return void
-     */
-    protected function buildFromRequest()
-    {
-        $this->path = $this->request->getPathInfo();
-        $this->method = $this->request->getMethod();
-
-        $this->setSegments();
-    }
-
-    /**
-     * Override any route params.
-     *
-     * @param  string                    $path
-     * @param  string                    $method
-     * @return Orno\Mvc\Route\Dispatcher $this
-     */
-    public function override($path = null, $method = null)
-    {
-        if (! is_null($path)) {
-            $this->path = $path;
-        }
-
-        if (! is_null($method)) {
-            $this->method = strtoupper($method);
-        }
-
-        $this->setSegments();
-
-        return $this;
+        $this->path = (is_null($path)) ? $this->request->getPathInfo() : $path;
+        $this->method = (is_null($method)) ? $this->request->getMethod() : strtoupper($method);
     }
 
     /**
@@ -160,14 +104,11 @@ class Dispatcher
      */
     public function run()
     {
-        if (is_null($this->path) || is_null($this->method)) {
-            throw new \RuntimeException('Environment must be set before dispatching');
-        }
-
         // match the actual route
         if (! $this->match($this->method)) {
             // TODO: Custom 404 routes
             (new Response('404 - Page Not Found', 404))->send();
+            return false;
         }
 
         // match any hooks
@@ -179,7 +120,7 @@ class Dispatcher
         ob_start();
 
         // check and call a before hook
-        $this->callHook('before', $arguments);
+        $this->trigger('before', $arguments);
 
         // run the actual route
         $object = $this->collection->getContainer()->resolve($this->route->getController(), $arguments);
@@ -195,24 +136,24 @@ class Dispatcher
         }
 
         // check and call an after hook
-        $this->callHook('after', $arguments);
+        $this->trigger('after', $arguments);
 
-        $finalOutput = ob_get_contents();
+        $output = ob_get_contents();
         ob_end_clean();
 
-        echo $finalOutput;
+        echo $output;
     }
 
-    public function callHook($event = null, array $arguments = [])
+    public function trigger($event = null, array $arguments = [])
     {
         if (is_null($event)) {
             return;
         }
 
         if (! is_null($this->{$event})) {
-            $return = $this->collection->getContainer()->resolve($this->{$event}->getController(), $arguments);
+            $object = $this->collection->getContainer()->resolve($this->{$event}->getController(), $arguments);
             if (! $this->{$event}->isClosure()) {
-                call_user_func_array([$return, $this->{$event}->getAction()], $arguments);
+                call_user_func_array([$object, $this->{$event}->getAction()], $arguments);
             }
         }
     }

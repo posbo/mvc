@@ -22,8 +22,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return 'after';
         });
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test', 'GET');
+        $dispatch = new Dispatcher($route, '/test', 'get');
 
         $this->assertTrue($dispatch->match('ANY', 'before'));
         $this->assertTrue($dispatch->match('ANY'));
@@ -45,8 +44,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return 'after';
         });
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/id/name', 'GET');
+        $dispatch = new Dispatcher($route, '/test/id/name', 'get');
 
         $this->assertTrue($dispatch->match('ANY', 'before'));
         $this->assertTrue($dispatch->match('ANY'));
@@ -59,8 +57,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/', 'GET');
+        $dispatch = new Dispatcher($route, '/', 'GET');
 
         $this->assertFalse($dispatch->match('GET'));
     }
@@ -71,8 +68,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/', 'GET');
+        $dispatch = new Dispatcher($route, '/', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -83,8 +79,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(required)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/somesegment', 'get');
+        $dispatch = new Dispatcher($route, '/test/somesegment', 'get');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -95,8 +90,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(required)/(required2)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/somesegment/somesegment2', 'GET');
+        $dispatch = new Dispatcher($route, '/test/somesegment/somesegment2', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -107,8 +101,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/somesegment/somesegment2', 'GET');
+        $dispatch = new Dispatcher($route, '/test/somesegment/somesegment2', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -119,8 +112,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(required)/(?optional)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/somesegment', 'GET');
+        $dispatch = new Dispatcher($route, '/test/somesegment', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -131,8 +123,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(?optional)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/somesegment', 'GET');
+        $dispatch = new Dispatcher($route, '/test/somesegment', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -143,8 +134,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
 
         $route->get('/test/(?optional)', 'TestController::testAction');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test', 'GET');
+        $dispatch = new Dispatcher($route, '/test', 'GET');
 
         $this->assertTrue($dispatch->match('GET'));
     }
@@ -157,8 +147,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return 'Hello World';
         });
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/', 'GET');
+        $dispatch = new Dispatcher($route, '/', 'GET');
 
         ob_start();
         $dispatch->run();
@@ -176,8 +165,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
         $route->add('/', 'Assets\OrnoTest\Controller::index');
         $route->after('/', 'Assets\OrnoTest\Controller::index', 'GET');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/', 'GET');
+        $dispatch = new Dispatcher($route, '/', 'GET');
 
         ob_start();
         $dispatch->run();
@@ -203,8 +191,7 @@ class DispatcherTest extends PHPUnit_Framework_Testcase
             return true;
         }, 'POST');
 
-        $dispatch = new Dispatcher($route);
-        $dispatch->override('/test/hello', 'POST');
+        $dispatch = new Dispatcher($route, '/test/hello', 'POST');
 
         ob_start();
         $dispatch->run();
