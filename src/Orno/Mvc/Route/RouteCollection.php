@@ -129,7 +129,7 @@ class RouteCollection
             $controller  = $destination[0];
 
             if (! $this->getContainer()->registered($destination[0])) {
-                $this->getContainer()->register($destination[0], null);
+                $this->getContainer()->register($destination[0], null, true, true);
             }
         }
 
