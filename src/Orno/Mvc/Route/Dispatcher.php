@@ -1,37 +1,61 @@
-<?php namespace Orno\Mvc\Route;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\Route;
 
 use Orno\Mvc\Route\RouteCollection;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Dispatcher
+ *
+ * Accepts a route collection object as a dependency and dispatches the application
+ */
 class Dispatcher
 {
     /**
+     * The main route object
+     *
      * @var Orno\Mvc\Route\Route
      */
     protected $route;
 
     /**
+     * A before hook route object
+     *
      * @var Orno\Mvc\Route\Route
      */
     protected $before;
 
     /**
+     * An after route hook object
+     *
      * @var Orno\Mvc\Route\Route
      */
     protected $after;
 
     /**
+     * The request object
+     *
      * @var Symfony\Component\HttpFoundation\Request
      */
     protected $request;
 
     /**
+     * The requested route path
+     *
      * @var string
      */
     protected $path;
 
     /**
+     * The request method
+     *
      * @var string
      */
     protected $method;
@@ -39,7 +63,9 @@ class Dispatcher
     /**
      * Constructor
      *
-     * @param Orno\Mvc\Route\RouteCollection $collection
+     * @param \Orno\Mvc\Route\RouteCollection $collection
+     * @param string $path
+     * @param string $method
      */
     public function __construct(RouteCollection $collection, $path = null, $method = null)
     {
@@ -50,9 +76,13 @@ class Dispatcher
     }
 
     /**
-     * Match the path against a route
+     * Match
+     *
+     * Match the path against a route, also accepts a second parameter to match
+     * a route based hook event
      *
      * @param  string $method
+     * @param  string $hook
      * @return boolean
      */
     public function match($method = 'ANY', $hook = null)
@@ -98,6 +128,8 @@ class Dispatcher
     }
 
     /**
+     * Run
+     *
      * Dispatch the route
      *
      * @return void
@@ -144,6 +176,15 @@ class Dispatcher
         echo $output;
     }
 
+    /**
+     * Trigger
+     *
+     * Trigger a route based hook event
+     *
+     * @param  string $event
+     * @param  array  $arguments
+     * @return void
+     */
     public function trigger($event = null, array $arguments = [])
     {
         if (is_null($event)) {
@@ -159,7 +200,9 @@ class Dispatcher
     }
 
     /**
-     * Get the arguments to pass to the action
+     * Get Arguments
+     *
+     * Collate the arguments to pass in to the route and hook callbacks
      *
      * @return array
      */

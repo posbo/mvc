@@ -1,4 +1,11 @@
-<?php namespace Orno\Mvc\View;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\View;
 
 use Orno\Mvc\View\AbstractRenderer;
 use Symfony\Component\HttpFoundation\Response;
@@ -6,9 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 class Renderer extends AbstractRenderer
 {
     /**
-     * Render the template object and any data
+     * {@inheritdoc}
      *
-     * @return Symfony\Component\HttpFoundation\Response
+     * @throws \Orno\Mvc\View\Exception\LayoutNotProvidedException
      */
     public function render($layout = null)
     {

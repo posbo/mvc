@@ -1,9 +1,21 @@
-<?php namespace Orno\Mvc\Route;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\Route;
 
 use Orno\Di\ContainerAwareTrait;
 use Orno\Mvc\Route\Route;
 use Closure;
 
+/**
+ * Route Collection
+ *
+ * A collection of route and hook event objects
+ */
 class RouteCollection
 {
     /**
@@ -12,6 +24,8 @@ class RouteCollection
     use ContainerAwareTrait;
 
     /**
+     * An array of route objects
+     *
      * @var array
      */
     protected $routes = [
@@ -24,6 +38,11 @@ class RouteCollection
         'OPTIONS' => []
     ];
 
+    /**
+     * An array of route hook event objects
+     *
+     * @var array
+     */
     protected $hooks = [
         'before' => [
             'ANY'     => [],
@@ -62,9 +81,12 @@ class RouteCollection
     }
 
     /**
-     * Set routes from array
+     * Set Routes
      *
-     * @param array
+     * Build routes array from provided config array
+     *
+     * @param  array $routes
+     * @return void
      */
     public function setRoutes(array $routes = [])
     {
@@ -77,9 +99,12 @@ class RouteCollection
     }
 
     /**
-     * Set hooks from array
+     * Set Hooks
      *
-     * @param array
+     * Build hooks array from provided config array
+     *
+     * @param  array
+     * @return void
      */
     public function setHooks(array $config = [])
     {
@@ -93,6 +118,8 @@ class RouteCollection
     }
 
     /**
+     * Get Routes
+     *
      * Return array of Route objects
      *
      * @return array
@@ -103,6 +130,8 @@ class RouteCollection
     }
 
     /**
+     * Get Hooks
+     *
      * Return array of Hooks
      *
      * @return array
@@ -113,11 +142,14 @@ class RouteCollection
     }
 
     /**
+     * Add
+     *
      * Add a route to the routes collection
      *
      * @param  string         $route
      * @param  string|closure $destination
      * @param  string         $method
+     * @param  string         $hook
      * @return void
      */
     public function add($route, $destination, $method = 'ANY', $hook = null)
@@ -150,6 +182,8 @@ class RouteCollection
     }
 
     /**
+     * Get
+     *
      * Proxy to add method for GET routes
      *
      * @param  string         $route
@@ -162,6 +196,8 @@ class RouteCollection
     }
 
     /**
+     * Post
+     *
      * Proxy to add method for POST routes
      *
      * @param  string         $route
@@ -174,6 +210,8 @@ class RouteCollection
     }
 
     /**
+     * Put
+     *
      * Proxy to add method for PUT routes
      *
      * @param  string         $route
@@ -186,6 +224,8 @@ class RouteCollection
     }
 
     /**
+     * Patch
+     *
      * Proxy to add method for PATCH routes
      *
      * @param  string         $route
@@ -198,6 +238,8 @@ class RouteCollection
     }
 
     /**
+     * Delete
+     *
      * Proxy to add method for DELETE routes
      *
      * @param  string         $route
@@ -210,6 +252,8 @@ class RouteCollection
     }
 
     /**
+     * Options
+     *
      * Proxy to add method for OPTIONS routes
      *
      * @param  string         $route
@@ -222,6 +266,8 @@ class RouteCollection
     }
 
     /**
+     * Restful
+     *
      * Creates all Route objects for a restful route
      *
      * @param  string $route
@@ -242,6 +288,8 @@ class RouteCollection
     }
 
     /**
+     * Before
+     *
      * Register a hook to be run before the controller action
      *
      * @param  string         $route
@@ -256,6 +304,8 @@ class RouteCollection
     }
 
     /**
+     * After
+     *
      * Register a hook to be run after the controller action
      *
      * @param  string         $route

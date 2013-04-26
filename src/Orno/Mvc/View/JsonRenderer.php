@@ -1,4 +1,11 @@
-<?php namespace Orno\Mvc\View;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\View;
 
 use Orno\Mvc\View\AbstractRenderer;
 use Symfony\Component\HttpFoundation\Response;
@@ -6,9 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class JsonRenderer extends AbstractRenderer
 {
     /**
-     * Render the data array as a json string
-     *
-     * @return Symfony\Component\HttpFoundation\Response
+     * {@inheritdoc}
      */
     public function render($layout = null)
     {

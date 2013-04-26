@@ -1,5 +1,17 @@
-<?php namespace Orno\Mvc\Controller;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\Controller;
 
+/**
+ * Restful Controller Interface
+ *
+ * Contract to ease creation of RESTful controllers
+ */
 interface RestfulControllerInterface
 {
     /**

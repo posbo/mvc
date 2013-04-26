@@ -1,13 +1,29 @@
-<?php namespace Orno\Mvc\Route;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\Route;
 
+/**
+ * Route
+ *
+ * A single route object
+ */
 class Route
 {
     /**
+     * The route path
+     *
      * @var string
      */
     protected $route;
 
     /**
+     * Array of segments in the route path
+     *
      * @var array
      */
     protected $segments;
@@ -20,6 +36,8 @@ class Route
     protected $controller;
 
     /**
+     * The name of the action to invoke
+     *
      * @var string
      */
     protected $action;
@@ -32,6 +50,8 @@ class Route
     protected $method;
 
     /**
+     * Is the controller a closure?
+     *
      * @var boolean
      */
     protected $closure;
@@ -46,11 +66,11 @@ class Route
      * @param boolean $closure
      */
     public function __construct(
-        $route      = null,
+        $route = null,
         $controller = null,
-        $action     = null,
-        $method     = null,
-        $closure    = false
+        $action = null,
+        $method = null,
+        $closure = false
     ) {
         $this->controller = $controller;
         $this->action     = $action;
@@ -80,7 +100,9 @@ class Route
     }
 
     /**
-     * Set the segments for this route
+     * Set Segments
+     *
+     * Explodes the route path in to segments
      *
      * @return void
      */
@@ -90,6 +112,8 @@ class Route
     }
 
     /**
+     * Get Segments
+     *
      * Return the segments array
      *
      * @return array
@@ -100,7 +124,9 @@ class Route
     }
 
     /**
-     * Return the route
+     * Get Route
+     *
+     * Return the route path string
      *
      * @return string
      */
@@ -110,7 +136,9 @@ class Route
     }
 
     /**
-     * Return the controller
+     * Get Controller
+     *
+     * Return the controller name (alias registered with the container)
      *
      * @return string
      */
@@ -120,7 +148,9 @@ class Route
     }
 
     /**
-     * Return the action
+     * Get Action
+     *
+     * Return the action name
      *
      * @return string
      */
@@ -130,7 +160,9 @@ class Route
     }
 
     /**
-     * Return the method
+     * Get Method
+     *
+     * Return the HTTP method type
      *
      * @return string
      */
@@ -140,7 +172,7 @@ class Route
     }
 
     /**
-     * Is the controller a closure?
+     * Is Closure?
      *
      * @return boolean
      */

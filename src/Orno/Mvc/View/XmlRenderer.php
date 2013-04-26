@@ -1,4 +1,11 @@
-<?php namespace Orno\Mvc\View;
+<?php
+/**
+ * The Orno Component Library
+ *
+ * @author  Phil Bennett @philipobenito
+ * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ */
+namespace Orno\Mvc\View;
 
 use Orno\Mvc\View\AbstractRenderer;
 use SimpleXMLElement;
@@ -7,9 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 class XmlRenderer extends AbstractRenderer
 {
     /**
-     * Render the data array as xml
-     *
-     * @return Symfony\Component\HttpFoundation\Response
+     * {@inheritdoc}
      */
     public function render($layout = null)
     {
@@ -21,6 +26,8 @@ class XmlRenderer extends AbstractRenderer
     }
 
     /**
+     * Array to XML
+     *
      * Walk array and build SimpleXML object
      *
      * @param  array            $array
@@ -29,8 +36,8 @@ class XmlRenderer extends AbstractRenderer
      */
     public function arrayToXml($array, $node)
     {
-        foreach($array as $key => $value) {
-            if(is_array($value)) {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
                 if (is_numeric($key)) {
                     $subnode = $node->addChild('node');
                 } else {
