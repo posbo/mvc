@@ -104,6 +104,7 @@ class Route
      *
      * Explodes the route path in to segments
      *
+     * @param  string $route
      * @return void
      */
     public function setSegments($route)

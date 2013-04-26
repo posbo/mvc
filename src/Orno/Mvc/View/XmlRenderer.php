@@ -11,10 +11,18 @@ use Orno\Mvc\View\AbstractRenderer;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * XML Renderer
+ */
 class XmlRenderer extends AbstractRenderer
 {
     /**
-     * {@inheritdoc}
+     * Render
+     *
+     * Renders an XML document
+     *
+     * @param  string $layout Does nothing
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render($layout = null)
     {

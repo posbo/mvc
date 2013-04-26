@@ -10,12 +10,21 @@ namespace Orno\Mvc\View;
 use Orno\Mvc\View\AbstractRenderer;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Renderer
+ *
+ * Main view renderer
+ */
 class Renderer extends AbstractRenderer
 {
     /**
-     * {@inheritdoc}
+     * Render
+     *
+     * Renders a view script
      *
      * @throws \Orno\Mvc\View\Exception\LayoutNotProvidedException
+     * @param  string $layout
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render($layout = null)
     {

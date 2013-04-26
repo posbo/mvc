@@ -10,10 +10,18 @@ namespace Orno\Mvc\View;
 use Orno\Mvc\View\AbstractRenderer;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Json Renderer
+ */
 class JsonRenderer extends AbstractRenderer
 {
     /**
-     * {@inheritdoc}
+     * Render
+     *
+     * Returns a JSON string as a rendered view
+     *
+     * @param  string $layout Does nothing
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render($layout = null)
     {
