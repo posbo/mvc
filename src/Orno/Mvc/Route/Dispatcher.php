@@ -7,7 +7,6 @@
  */
 namespace Orno\Mvc\Route;
 
-use Orno\Mvc\Route\RouteCollection;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 

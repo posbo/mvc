@@ -75,7 +75,7 @@ abstract class AbstractRenderer implements ArrayAccess
      */
     public function addLayout(array $layouts)
     {
-        foreach ($layout as $key => $value) {
+        foreach ($layouts as $key => $value) {
             $this->layouts[$key] = $value;
         }
     }
