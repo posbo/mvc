@@ -1,6 +1,6 @@
-<?php namespace Orno\Tests;
+<?php namespace OrnoTest;
 
-use PHPUnit_Framework_Testcase;
+use PHPUnit_Framework_TestCase;
 use Orno\Mvc\View\JsonRenderer;
 use Orno\Mvc\View\XmlRenderer;
 use Orno\Mvc\View\Renderer;
@@ -8,7 +8,7 @@ use SimpleXMLElement;
 use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 
-class ViewOutputTest extends PHPUnit_Framework_Testcase
+class ViewOutputTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @runInSeparateProcess
@@ -87,10 +87,17 @@ class ViewOutputTest extends PHPUnit_Framework_Testcase
 
     public function testResolvingHelper()
     {
+        $container = $this->getMock('Orno\Di\Container');
+
+        $container->expects($this->once())
+                  ->method('resolve')
+                  ->with($this->equalTo('testHelper'), $this->equalTo(['Hello ', 'World']))
+                  ->will($this->returnValue('Hello World'));
+
         $view = new Renderer;
-        $view->getContainer()->register('testHelper', function ($hello, $world) {
-            return $hello . $world;
-        });
+
+        $view->setContainer($container);
+
         $this->assertSame($view->testHelper('Hello ', 'World'), 'Hello World');
     }
 }

@@ -1,12 +1,12 @@
-<?php namespace Orno\Tests;
+<?php namespace OrnoTest;
 
-use PHPUnit_Framework_Testcase;
+use PHPUnit_Framework_TestCase;
 use Orno\Mvc\View\JsonRenderer;
 use Orno\Mvc\View\XmlRenderer;
 use Orno\Mvc\View\Renderer;
 use SimpleXMLElement;
 
-class ViewDataTest extends PHPUnit_Framework_Testcase
+class ViewDataTest extends PHPUnit_Framework_TestCase
 {
     public function testMagicMethodsSetData()
     {

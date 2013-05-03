@@ -1,10 +1,9 @@
-<?php namespace Orno\Tests;
+<?php namespace OrnoTest;
 
-use PHPUnit_Framework_Testcase;
 use Orno\Mvc\Route\RouteCollection;
 use Orno\Mvc\Route\Route;
 
-class RouteCollectionTest extends PHPUnit_Framework_Testcase
+class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 {
     public function testRouteCollectionAcceptsConfig()
     {
@@ -12,23 +11,15 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
             'routes' => [
                 'get' => [
                     '/test/route'  => 'TestController::testAction',
-                    '/test/route2' => function () { return true; }
+                    '/test/route2' => function () {
+                        return true;
+                    }
                 ],
                 'post' => [
                     '/test/route'  => 'TestController::testAction',
-                    '/test/route2' => function () { return true; }
-                ]
-            ],
-            'hooks' => [
-                'before' => [
-                    'any' => [
-                        '/test/route' => 'TestController::testAction'
-                    ]
-                ],
-                'after' => [
-                    'any' => [
-                        '/test/route2' => function () { return true; }
-                    ]
+                    '/test/route2' => function () {
+                        return true;
+                    }
                 ]
             ]
         ];
@@ -46,17 +37,45 @@ class RouteCollectionTest extends PHPUnit_Framework_Testcase
 
     public function testAddRouteWithControllerAndAction()
     {
+        $container = $this->getMock('Orno\Di\Container');
+
+        $container->expects($this->any())
+                  ->method('registered')
+                  ->will($this->returnValue(true));
+
+        $container->expects($this->any())
+                  ->method('register');
+
         $route = new RouteCollection;
 
-        $route->add('/test/route', 'TestController::testAction');
-        $this->assertTrue($route->getContainer()->registered('TestController'));
+        $route->setContainer($container);
+
+        $route->add('/test/route', 'Controller::action');
+        $this->assertTrue($route->getContainer()->registered('Controller'));
     }
 
     public function testAddRouteWithClosure()
     {
+        $container = $this->getMock('Orno\Di\Container');
+
+        $container->expects($this->any())
+                  ->method('registered')
+                  ->will($this->returnValue(true));
+
+        $container->expects($this->any())
+                  ->method('register');
+
         $route = new RouteCollection;
 
-        $route->add('/test/route', function () { return true; });
+        $route->setContainer($container);
+
+        $route->add(
+            '/test/route',
+            function () {
+                return true;
+            }
+        );
+
         $this->assertTrue($route->getContainer()->registered('/test/route'));
     }
 

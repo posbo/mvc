@@ -1,203 +1,195 @@
-<?php namespace Orno\Tests;
+<?php namespace OrnoTest;
 
-use PHPUnit_Framework_Testcase;
-use Orno\Mvc\Route\RouteCollection;
+use PHPUnit_Framework_TestCase;
 use Orno\Mvc\Route\Dispatcher;
 
-class DispatcherTest extends PHPUnit_Framework_Testcase
+class DispatcherTest extends PHPUnit_Framework_TestCase
 {
-    public function testBeforeAndAfterHooks()
+    protected $dispatcher;
+
+    public function setUp()
     {
-        $route = new RouteCollection;
+        $collection = $this->getMock('Orno\Mvc\Route\RouteCollection');
 
-        $route->before('/test', function () {
-            return 'before';
-        });
+        $collection->expects($this->any())
+                   ->method('getRoutes')
+                   ->will($this->returnValue($this->getMockRoutes()));
 
-        $route->add('/test', function () {
-            return 'controller';
-        });
-
-        $route->after('/test', function () {
-            return 'after';
-        });
-
-        $dispatch = new Dispatcher($route, '/test', 'get');
-
-        $this->assertTrue($dispatch->match('ANY', 'before'));
-        $this->assertTrue($dispatch->match('ANY'));
-        $this->assertTrue($dispatch->match('ANY', 'after'));
+        $this->dispatcher = new Dispatcher($collection);
     }
 
-    public function testBeforeAndAfterHooksWithWildcards() {
-        $route = new RouteCollection;
-
-        $route->before('/test/(:catchall)', function () {
-            return 'before';
-        });
-
-        $route->add('/test/(id)/(name)', function () {
-            return 'controller';
-        });
-
-        $route->after('/test/(:catch-all)', function () {
-            return 'after';
-        });
-
-        $dispatch = new Dispatcher($route, '/test/id/name', 'get');
-
-        $this->assertTrue($dispatch->match('ANY', 'before'));
-        $this->assertTrue($dispatch->match('ANY'));
-        $this->assertTrue($dispatch->match('ANY', 'after'));
+    public function tearDown()
+    {
+        unset($this->dispatcher);
     }
 
-    public function testMatchDoesNotExist()
+    public function testMatcheReturnsTrueOnWildcardMatch()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/test', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/', 'GET');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/test'));
 
-        $this->assertFalse($dispatch->match('GET'));
+        $this->assertTrue($this->dispatcher->match($request));
     }
 
-    public function testMatchOnLiteral()
+    public function testMatchReturnsTrueOnExactMatch()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/', 'GET');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/'));
 
-        $this->assertTrue($dispatch->match('GET'));
+        $this->assertTrue($this->dispatcher->match($request));
     }
 
-    public function testMatchOnRequiredSegment()
+    public function testMatchReturnsFalseOnFAilure()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/test/(required)', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/test/somesegment', 'get');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/no-route'));
 
-        $this->assertTrue($dispatch->match('GET'));
+        $this->assertFalse($this->dispatcher->match($request));
     }
 
-    public function testMatchOnMultipleRequiredSegments()
+    public function testGetArgumentsReturnsCorrectArray()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/test/(required)/(required2)', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/test/somesegment/somesegment2', 'GET');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/test/argument'));
 
-        $this->assertTrue($dispatch->match('GET'));
+        $this->dispatcher->match($request);
+
+        $array = ['argument'];
+
+        $this->assertSame($array, $this->dispatcher->getArguments());
     }
 
-    public function testMatchOnRequiredAndPresentOptionalSegment()
+    public function testGetArgumentsReturnsNullKeyForOptionalArgument()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/test/(required)/(?optional)', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/test/somesegment/somesegment2', 'GET');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/test'));
 
-        $this->assertTrue($dispatch->match('GET'));
+        $this->dispatcher->match($request);
+
+        $array = [null];
+
+        $this->assertSame($array, $this->dispatcher->getArguments());
     }
 
-    public function testMatchOnRequiredAndMissingOptionalSegment()
+    public function testGetRouteThrowsExceptionWhenNoRouteMatched()
     {
-        $route = new RouteCollection;
-
-        $route->get('/test/(required)/(?optional)', 'TestController::testAction');
-
-        $dispatch = new Dispatcher($route, '/test/somesegment', 'GET');
-
-        $this->assertTrue($dispatch->match('GET'));
+        $this->setExpectedException('Orno\Mvc\Route\Exception\RouteNotMatchedException');
+        $this->dispatcher->getRoute();
     }
 
-    public function testMatchOnOptionalSegment()
+    public function testDispatchThrowsExceptionWhenNoRouteMatched()
     {
-        $route = new RouteCollection;
-
-        $route->get('/test/(?optional)', 'TestController::testAction');
-
-        $dispatch = new Dispatcher($route, '/test/somesegment', 'GET');
-
-        $this->assertTrue($dispatch->match('GET'));
+        $this->setExpectedException('Orno\Mvc\Route\Exception\RouteNotMatchedException');
+        $this->dispatcher->dispatch();
     }
 
-    public function testMatchOnOptionalMissingSegment()
+    public function testDispatchReturnsResponse()
     {
-        $route = new RouteCollection;
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
-        $route->get('/test/(?optional)', 'TestController::testAction');
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
 
-        $dispatch = new Dispatcher($route, '/test', 'GET');
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/'));
 
-        $this->assertTrue($dispatch->match('GET'));
+        $this->dispatcher->match($request);
+
+        $controller = $this->getMock('Controller', ['action']);
+
+        $controller->expects($this->once())
+                   ->method('action')
+                   ->will($this->returnValue('Hello World'));
+
+        $container = $this->getMock('Orno\Di\Container');
+
+        $container->expects($this->once())
+                  ->method('resolve')
+                  ->will($this->returnValue($controller));
+
+        $this->dispatcher->setContainer($container);
+
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $this->dispatcher->dispatch());
     }
 
-    public function testDispatchesClosure()
+    public function getMockRoutes()
     {
-        $route = new RouteCollection;
+        $route1 = $this->getMock('Orno\Mvc\Route\Route');
+        $route2 = $this->getMock('Orno\Mvc\Route\Route');
 
-        $route->add('/', function () {
-            return 'Hello World';
-        });
+        $route1->expects($this->any())
+               ->method('getRoute')
+               ->will($this->returnValue('/'));
 
-        $dispatch = new Dispatcher($route, '/', 'GET');
+        $route1->expects($this->any())
+               ->method('getController')
+               ->will($this->returnValue('Controller'));
 
-        ob_start();
-        $dispatch->run();
-        $result = ob_get_contents();
-        ob_end_clean();
+        $route1->expects($this->any())
+               ->method('getAction')
+               ->will($this->returnValue('action'));
 
-        $this->assertSame($result, 'Hello World');
-    }
+        $route1->expects($this->any())
+               ->method('isClosure')
+               ->will($this->returnValue(false));
 
-    public function testDispatchesControllerAction()
-    {
-        $route = new RouteCollection;
+        $route1->expects($this->any())
+               ->method('getUriSegments')
+               ->will($this->returnValue([]));
 
-        $route->before('/', 'Assets\OrnoTest\Controller::before');
-        $route->add('/', 'Assets\OrnoTest\Controller::index');
-        $route->after('/', 'Assets\OrnoTest\Controller::index', 'GET');
+        $route2->expects($this->any())
+               ->method('getRoute')
+               ->will($this->returnValue('/test(\/.+?)?'));
 
-        $dispatch = new Dispatcher($route, '/', 'GET');
+        $route2->expects($this->any())
+               ->method('getUriSegments')
+               ->will($this->returnValue(['test', '(?any)']));
 
-        ob_start();
-        $dispatch->run();
-        $result = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertSame($result, 'Hello World');
-    }
-
-    public function testArgumentsPassedToAction()
-    {
-        $route = new RouteCollection;
-
-        $route->before('/test/(:catchall)', function () {
-            return true;
-        }, 'POST');
-
-        $route->post('/test/(argument)', function ($argument) {
-            return $argument;
-        });
-
-        $route->after('/test/(:catchall)', function () {
-            return true;
-        }, 'POST');
-
-        $dispatch = new Dispatcher($route, '/test/hello', 'POST');
-
-        ob_start();
-        $dispatch->run();
-        $result = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertSame($result, 'hello');
+        return [
+            'ANY' => [$route1, $route2],
+            'GET' => [],
+            'POST' => [$route1, $route2],
+            'PUT' => [],
+            'PATCH' => [],
+            'DELETE' => [],
+            'OPTIONS' => []
+        ];
     }
 }

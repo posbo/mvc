@@ -26,7 +26,7 @@ class Route
      *
      * @var array
      */
-    protected $segments;
+    protected $segments = [];
 
     /**
      * Points to item registered with Orno\Di\Container
@@ -48,6 +48,13 @@ class Route
      * @var string
      */
     protected $method;
+
+    /**
+     * The module that the controller resides in
+     *
+     * @var string
+     */
+    protected $module;
 
     /**
      * Is the controller a closure?
@@ -74,54 +81,85 @@ class Route
     ) {
         $this->controller = $controller;
         $this->action     = $action;
-        $this->method     = $method;
+        $this->method     = strtoupper($method);
         $this->closure    = $closure;
-
-        $this->setSegments($route);
-
-        $patterns = [
-            '/\/\(:any\)/',
-            '/\/\(:all\)/',
-            '/\/\(:catchall\)/',
-            '/\/\((\?.*?)\)/',
-            '/\([^\/].*?\)/'
-        ];
-
-        $replacements = [
-            '(\/.+)?',
-            '(\/.+)?',
-            '(\/.+)?',
-            '(\/.+?)?',
-            '(.+?)'
-        ];
-
-        $route = preg_replace($patterns, $replacements, $route);
-        $this->route = $route;
+        $this->route      = $this->regexify($route);
     }
 
     /**
-     * Set Segments
+     * Regiexify
+     *
+     * Transform route into a matchable regular expresion
+     *
+     * @param  string $route
+     * @return string
+     */
+    public function regexify($route)
+    {
+        $patterns = ['/\/\(:any\)/', '/\/\(:all\)/', '/\/\((\?.*?)\)/', '/\([^\/].*?\)/'];
+        $replacements = ['(\/.+)?', '(\/.+)?', '(\/.+?)?', '(.+?)'];
+
+        return preg_replace($patterns, $replacements, $route);
+    }
+
+    /**
+     * Set URI Segments
      *
      * Explodes the route path in to segments
      *
      * @param  string $route
      * @return void
      */
-    public function setSegments($route)
+    public function setUriSegments($route)
     {
         $this->segments = explode('/', trim($route, '/'));
     }
 
     /**
-     * Get Segments
+     * Get URI Segments
      *
      * Return the segments array
      *
      * @return array
      */
-    public function getSegments()
+    public function getUriSegments()
     {
+        if (empty($this->segments)) {
+            $this->setUriSegments($this->route);
+        }
+
         return $this->segments;
+    }
+
+    /**
+     * Set Module
+     *
+     * Use the first level of the controller namespace as the module
+     *
+     * @param  string $controller
+     * @return void
+     */
+    public function setModule($controller)
+    {
+        if (strpos(trim($controller, '\\'), '\\') !== false) {
+            $this->module = explode('\\', trim($controller, '\\'))[0];
+        }
+    }
+
+    /**
+     * Get Module
+     *
+     * Return the module that the controller resides in
+     *
+     * @return string
+     */
+    public function getModule()
+    {
+        if (is_null($this->module)) {
+            $this->setModule($this->controller);
+        }
+
+        return $this->module;
     }
 
     /**
