@@ -215,7 +215,9 @@ class Application
                 $this->config = array_merge($this->config, $this->moduleConfig[$module]);
                 $this->setDependencyConfig($this->moduleConfig[$module]['dependencies']);
             }
+        }
 
+        if (! isset($response)) {
             $response = $dispatcher->dispatch();
         }
 
