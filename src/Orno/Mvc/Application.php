@@ -9,6 +9,7 @@ namespace Orno\Mvc;
 
 use Orno\Di\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Application
@@ -69,7 +70,7 @@ class Application
         array_walk($this->config['modules'], function ($options, $module) {
             if (! isset($options['src'])) {
                 throw new Exception\ModuleDefinitionException(
-                    sprintf('Module (%s) must have a "src" key defined in the application configuration array', $module)
+                    sprintf('Module (%s) must have a [src] key defined in the application configuration array', $module)
                 );
             }
 
@@ -196,10 +197,18 @@ class Application
         // register the router
         $this->registerRouter();
 
+        // set up the request
+        $request = Request::createFromGlobals();
+
         // start the dispatch process
         $dispatcher = $this->getContainer()->resolve('dispatcher');
 
-        if ($dispatcher->match(Request::createFromGlobals())) {
+        if (! $dispatcher->match($request)) {
+            // do we have a custom 404?
+            if (! $dispatcher->match($request, true, true)) {
+                $response = new Response('Error 404 - Page Not Found', 404);
+            }
+        } else {
             $module = $dispatcher->getRoute()->getModule();
 
             if (isset($this->moduleConfig[$module]['dependencies'])) {
@@ -207,7 +216,9 @@ class Application
                 $this->setDependencyConfig($this->moduleConfig[$module]['dependencies']);
             }
 
-            return $dispatcher->dispatch()->send();
+            $response = $dispatcher->dispatch();
         }
+
+        $response->send();
     }
 }

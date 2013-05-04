@@ -63,9 +63,9 @@ class Dispatcher
      * @param  boolean $any - whether to check the 'ANY' request method
      * @return boolean
      */
-    public function match(Request $request, $any = false)
+    public function match(Request $request, $any = false, $notFound = false)
     {
-        $this->path = $request->getPathInfo();
+        $this->path = ($notFound === false) ? $request->getPathInfo() : '/404';
 
         $method = ($any === true) ? 'ANY' : $request->getMethod();
         $routes = $this->collection->getRoutes()[$method];
