@@ -44,7 +44,7 @@ class Application
      */
     public function loadModules(array $config)
     {
-        if (! isset($config) || empty($config)) {
+        if (empty($config)) {
             throw new Exception\ModuleDefinitionException(
                 'No modules were defined in the application configuration array'
             );
