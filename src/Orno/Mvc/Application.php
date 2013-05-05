@@ -39,17 +39,7 @@ class Application
      *
      * @var array
      */
-    protected $moduleConfig = [];
-
-    /**
-     * Constructor
-     *
-     * @param string $config
-     */
-    public function __construct(array $config = [])
-    {
-        $this->config = array_merge($this->config, $config);
-    }
+    protected $config = [];
 
     /**
      * Load Modules
@@ -59,20 +49,23 @@ class Application
      * @throws \Orno\Mvc\Exception\ModuleDefinitionException
      * @return void
      */
-    public function loadModules()
+    public function loadModules(array $config)
     {
-        if (! isset($this->config['modules']) || empty($this->config['modules'])) {
+        if (! isset($config) || empty($config)) {
             throw new Exception\ModuleDefinitionException(
                 'No modules were defined in the application configuration array'
             );
         }
 
-        array_walk($this->config['modules'], function ($options, $module) {
+        array_walk($config, function ($options, $module) {
             if (! isset($options['src'])) {
                 throw new Exception\ModuleDefinitionException(
                     sprintf('Module (%s) must have a [src] key defined in the application configuration array', $module)
                 );
             }
+
+            // build namespace autoloader config array
+            $this->config['autoload_namespaces'][$module] = $options['src'];
 
             // set any module specific config paths
             if (isset($options['config'])) {
@@ -97,7 +90,7 @@ class Application
      * @param  string $module
      * @return void
      */
-    public function mergeModuleConfig($configPath, $module) {
+    protected function mergeModuleConfig($configPath, $module) {
         foreach (new \DirectoryIterator($configPath) as $file) {
             if ($file->isFile()) {
                 $key = $file->getBasename('.php');
@@ -112,12 +105,12 @@ class Application
                         );
                     }
 
-                    $this->moduleConfig[$module][$key] = $config;
+                    $this->config[$module][$key] = $config;
                 }
             }
         }
 
-        $this->config = array_merge($this->config, $this->moduleConfig[$module]);
+        $this->config = array_merge($this->config, $this->config[$module]);
     }
 
     /**
@@ -140,9 +133,9 @@ class Application
      *
      * @return void
      */
-    public function setDependencyConfig()
+    public function setDependencyConfig(array $config)
     {
-        $this->getContainer()->setConfig($this->config['dependencies']);
+        $this->getContainer()->setConfig($config);
     }
 
     /**
@@ -186,17 +179,6 @@ class Application
      */
     public function run()
     {
-        // register the exception handler
-        $this->setExceptionHandler();
-        // load all modules and config
-        $this->loadModules();
-        // set config for the di container (will later be merged with active module config)
-        $this->setDependencyConfig();
-        // register the autoloader
-        $this->registerAutoloader();
-        // register the router
-        $this->registerRouter();
-
         // set up the request
         $request = Request::createFromGlobals();
 
@@ -211,9 +193,8 @@ class Application
         } else {
             $module = $dispatcher->getRoute()->getModule();
 
-            if (isset($this->moduleConfig[$module]['dependencies'])) {
-                $this->config = array_merge($this->config, $this->moduleConfig[$module]);
-                $this->setDependencyConfig($this->moduleConfig[$module]['dependencies']);
+            if (isset($this->config[$module]['dependencies'])) {
+                $this->setDependencyConfig($this->config[$module]['dependencies']);
             }
         }
 
