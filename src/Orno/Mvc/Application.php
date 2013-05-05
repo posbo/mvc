@@ -35,13 +35,6 @@ class Application
     ];
 
     /**
-     * Module specific config, eventually merged into main config array
-     *
-     * @var array
-     */
-    protected $config = [];
-
-    /**
      * Load Modules
      *
      * Load modules and module specific config into the application object
@@ -135,6 +128,10 @@ class Application
      */
     public function setDependencyConfig(array $config)
     {
+        if (isset($this->config['dependencies'])) {
+            $config = array_merge($this->config['dependencies'], $config);
+        }
+
         $this->getContainer()->setConfig($config);
     }
 
