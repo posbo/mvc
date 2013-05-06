@@ -96,7 +96,7 @@ class Route
      */
     public function regexify($route)
     {
-        $patterns = ['/\/\(:any\)/', '/\/\(:all\)/', '/\/\((\?.*?)\)/', '/\([^\/].*?\)/'];
+        $patterns = ['/\(:any\)/', '/\(:all\)/', '/\((\?.*?)\)/', '/\([^\/].*?\)/'];
         $replacements = ['(\/.+)?', '(\/.+)?', '(\/.+?)?', '(.+?)'];
 
         return preg_replace($patterns, $replacements, $route);
