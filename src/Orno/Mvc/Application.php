@@ -158,10 +158,12 @@ class Application
      *
      * @return void
      */
-    public function registerRouter()
+    public function registerRouter(array $routes = [])
     {
+        $routes = array_merge($this->config['routes'], $routes);
+
         $this->getContainer()->register('Orno\Mvc\Route\RouteCollection', null, true)
-             ->withMethodCall('setRoutes', [$this->config['routes']]);
+             ->withMethodCall('setRoutes', [$routes]);
 
         $this->getContainer()->register('dispatcher', 'Orno\Mvc\Route\Dispatcher')
              ->withArgument('Orno\Mvc\Route\RouteCollection');
