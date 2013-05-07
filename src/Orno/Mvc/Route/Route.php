@@ -84,6 +84,8 @@ class Route
         $this->method     = strtoupper($method);
         $this->closure    = $closure;
         $this->route      = $this->regexify($route);
+
+        $this->setUriSegments($route);
     }
 
     /**
@@ -96,10 +98,11 @@ class Route
      */
     public function regexify($route)
     {
-        $patterns = ['/\/\(:any\)/', '/\/\(:all\)/', '/\/\((\?.*?)\)/', '/\([^\/].*?\)/'];
-        $replacements = ['(\/.+)?', '(\/.+)?', '(\/.+?)?', '(.+?)'];
+        $patterns = ['/\/\((\?.*?)\)/', '/\([^\?].*?\)/'];
+        $replacements = ['(.+?)?', '(.+?)'];
 
-        return preg_replace($patterns, $replacements, $route);
+        $route = preg_replace($patterns, $replacements, $route);
+        return str_replace('(.+?)?', '(\\/.+?)?', $route);
     }
 
     /**

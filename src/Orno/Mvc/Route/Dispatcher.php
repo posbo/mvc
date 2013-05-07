@@ -140,7 +140,7 @@ class Dispatcher
         $segments  = explode('/', trim($this->path, '/'));
 
         if (! empty($segments)) {
-            $keys = preg_grep('/\([^\/].*?\)/', $this->getRoute()->getUriSegments());
+            $keys = preg_grep('/\(.*?\)/', $this->getRoute()->getUriSegments());
         }
 
         if (! empty($keys)) {
