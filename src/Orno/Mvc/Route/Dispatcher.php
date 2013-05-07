@@ -61,6 +61,7 @@ class Dispatcher
      *
      * @param  \Symfony\Component\HttpFoundation\Request $request
      * @param  boolean $any - whether to check the 'ANY' request method
+     * @param  boolean $notFound - set the route as a 404
      * @return boolean
      */
     public function match(Request $request, $any = false, $notFound = false)
@@ -113,14 +114,12 @@ class Dispatcher
 
         $arguments = $this->getArguments($this->path);
 
-        // run the actual route
         $response = $this->getContainer()->resolve($this->getRoute()->getController(), $arguments);
 
         if (! $this->getRoute()->isClosure()) {
             $response = (new \ReflectionMethod($response, $this->getRoute()->getAction()))->invokeArgs($response, $arguments);
         }
 
-        // send the response to the buffer
         if (! $response instanceof Response) {
             $response = new Response($response, 200, ['content-type' => 'text/html']);
         }
