@@ -38,6 +38,21 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->dispatcher->match($request));
     }
 
+    public function testMatcheReturnsTrueOnMultipleWildcardMatch()
+    {
+        $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+
+        $request->expects($this->any())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
+
+        $request->expects($this->any())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/test/1234/test2'));
+
+        $this->assertTrue($this->dispatcher->match($request));
+    }
+
     public function testMatchReturnsTrueOnExactMatch()
     {
         $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
@@ -53,7 +68,7 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->dispatcher->match($request));
     }
 
-    public function testMatchReturnsFalseOnFAilure()
+    public function testMatchReturnsFalseOnFailure()
     {
         $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
@@ -153,6 +168,8 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
     {
         $route1 = $this->getMock('Orno\Mvc\Route\Route');
         $route2 = $this->getMock('Orno\Mvc\Route\Route');
+        $route3 = $this->getMock('Orno\Mvc\Route\Route');
+        $route4 = $this->getMock('Orno\Mvc\Route\Route');
 
         $route1->expects($this->any())
                ->method('getRoute')
@@ -182,8 +199,24 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
                ->method('getUriSegments')
                ->will($this->returnValue(['test', '(?any)']));
 
+        $route3->expects($this->any())
+               ->method('getRoute')
+               ->will($this->returnValue('/test/(.+?)?'));
+
+        $route3->expects($this->any())
+               ->method('getUriSegments')
+               ->will($this->returnValue(['test', '(any)']));
+
+        $route4->expects($this->any())
+               ->method('getRoute')
+               ->will($this->returnValue('/test/(.+?)?/test2(\/.+?)?'));
+
+        $route4->expects($this->any())
+               ->method('getUriSegments')
+               ->will($this->returnValue(['test', '(any)', 'test2', '(?any)']));
+
         return [
-            'ANY' => [$route1, $route2],
+            'ANY' => [$route1, $route2, $route3, $route4],
             'GET' => [],
             'POST' => [$route1, $route2],
             'PUT' => [],
