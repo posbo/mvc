@@ -60,15 +60,15 @@ class Dispatcher
      * Match the path against a route
      *
      * @param  \Symfony\Component\HttpFoundation\Request $request
-     * @param  boolean $any - whether to check the 'ANY' request method
+     * @param  boolean $get - whether to fall back to the 'GET' request method
      * @param  boolean $notFound - set the route as a 404
      * @return boolean
      */
-    public function match(Request $request, $any = false, $notFound = false)
+    public function match(Request $request, $get = false, $notFound = false)
     {
         $this->path = ($notFound === false) ? $request->getPathInfo() : '/404';
 
-        $method = ($any === true) ? 'ANY' : $request->getMethod();
+        $method = ($get === true) ? 'GET' : $request->getMethod();
         $routes = $this->collection->getRoutes()[$method];
 
         // loop through the routes array for a match
@@ -87,9 +87,9 @@ class Dispatcher
             return true;
         }
 
-        // if we have a request method and have not matched a route, we need to
-        // try to match a route bound to ANY request method
-        if ($any === false) {
+        // if we haven't matched a route for a request method other than GET,
+        // we fall back to the GET method
+        if ($get === false) {
             return $this->match($request, true);
         }
 

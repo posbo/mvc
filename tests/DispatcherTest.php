@@ -23,13 +23,13 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
         unset($this->dispatcher);
     }
 
-    public function testMatcheReturnsTrueOnWildcardMatch()
+    public function testMatchReturnsTrueOnWildcardMatch()
     {
         $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
 
         $request->expects($this->any())
                 ->method('getMethod')
-                ->will($this->returnValue('GET'));
+                ->will($this->returnValue('PUT'));
 
         $request->expects($this->any())
                 ->method('getPathInfo')
@@ -216,8 +216,7 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
                ->will($this->returnValue(['test', '(any)', 'test2', '(?any)']));
 
         return [
-            'ANY' => [$route1, $route2, $route3, $route4],
-            'GET' => [],
+            'GET' => [$route1, $route2, $route3, $route4],
             'POST' => [$route1, $route2],
             'PUT' => [],
             'PATCH' => [],

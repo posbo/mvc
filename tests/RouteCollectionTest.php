@@ -8,19 +8,17 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     public function testRouteCollectionAcceptsConfig()
     {
         $routes = [
-            'routes' => [
-                'get' => [
-                    '/test/route'  => 'TestController::testAction',
-                    '/test/route2' => function () {
-                        return true;
-                    }
-                ],
-                'post' => [
-                    '/test/route'  => 'TestController::testAction',
-                    '/test/route2' => function () {
-                        return true;
-                    }
-                ]
+            '/test/route' => [
+                'get' => 'TestController::testAction',
+                'post' => 'TestController::testPostAction'
+            ],
+            '/test/route2' => [
+                'get' => function () {
+                    return true;
+                },
+                'post' => function () {
+                    return true;
+                }
             ]
         ];
 
@@ -91,7 +89,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $route->delete('/delete/route', 'Controller::deleteAction');
         $route->options('/options/route', 'Controller::optionsAction');
 
-        $this->assertSame(count($route->getRoutes()), 7);
+        $this->assertSame(count($route->getRoutes()), 6);
 
         foreach ($route->getRoutes() as $method) {
             foreach ($method as $route) {
