@@ -129,8 +129,8 @@ class Application
         $this->getContainer()->register('Handler', $handler);
 
         $this->getContainer()->register('Whoops\Run')
-                             ->withMethod('pushHandler', ['Handler'])
-                             ->withMethod('register');
+                             ->withMethodCall('pushHandler', ['Handler'])
+                             ->withMethodCall('register');
 
         $this->getContainer()->resolve('Whoops\Run');
     }
