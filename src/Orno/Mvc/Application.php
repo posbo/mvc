@@ -43,7 +43,7 @@ class Application
     /**
      * Constructor
      *
-     * @param string $config
+     * @param array $config
      */
     public function __construct(array $config = [])
     {

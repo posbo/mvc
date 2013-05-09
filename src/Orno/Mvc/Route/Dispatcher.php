@@ -100,7 +100,7 @@ class Dispatcher
      *
      * Dispatch the route
      *
-     * @param  \Symfony\Component\HttpFoundation\Request $request
+     * @throws \Orno\Mvc\Route\Exception\RouteNotMatchedException
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function dispatch()

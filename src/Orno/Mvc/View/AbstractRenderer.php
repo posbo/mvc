@@ -15,7 +15,7 @@ use ArrayAccess;
  *
  * Abstracttion of shared view renderer functionality
  */
-abstract class AbstractRenderer implements ArrayAccess
+abstract class AbstractRenderer implements ArrayAccess, RendererInterface
 {
     /**
      * Access the container
@@ -51,12 +51,7 @@ abstract class AbstractRenderer implements ArrayAccess
     protected $regions = [];
 
     /**
-     * Add View Path
-     *
-     * Append a path to the view script path stack
-     *
-     * @param  string|array $paths
-     * @return void
+     * {@inheritdoc}
      */
     public function addViewPath($paths)
     {
@@ -66,12 +61,7 @@ abstract class AbstractRenderer implements ArrayAccess
     }
 
     /**
-     * Add Layout
-     *
-     * Add a layout to the Renderer object
-     *
-     * @param  array $layouts
-     * @return void
+     * {@inheritdoc}
      */
     public function addLayout(array $layouts)
     {
@@ -81,26 +71,12 @@ abstract class AbstractRenderer implements ArrayAccess
     }
 
     /**
-     * Render
-     *
-     * Render a view with an optional chanbge of layout
-     *
-     * @param  string $layout
-     * @return \Symfony\Component\HttpFoundation\Response
+     * {@inheritdoc}
      */
     abstract public function render($layout = null);
 
     /**
-     * Region
-     *
-     * Set or write to a region
-     *
-     * @throws \Orno\Mvc\View\Exception\RegionNotProvidedException
-     * @throws \Orno\Mvc\View\Exception\ViewPathNotProvidedException
-     * @param  string  $region
-     * @param  string  $content
-     * @param  array   $data
-     * @return void
+     * {@inheritdoc}
      */
     public function region($region = null, $content = null, array $data = [])
     {
@@ -154,12 +130,7 @@ abstract class AbstractRenderer implements ArrayAccess
     }
 
     /**
-     * Magic call method for view helpers
-     *
-     * @throws \Orno\Mvc\View\Exception\HelperNotFoundException
-     * @param  string $helper
-     * @param  array  $args
-     * @return mixed
+     * {@inheritdoc}
      */
     public function __call($helper, $args)
     {

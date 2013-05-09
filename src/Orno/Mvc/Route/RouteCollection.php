@@ -88,7 +88,6 @@ class RouteCollection
      * @param  string         $route
      * @param  string|closure $destination
      * @param  string         $method
-     * @param  string         $hook
      * @return void
      */
     public function add($route, $destination, $method = 'any')
