@@ -118,6 +118,7 @@ class Application
      *
      * Register and start the application exception handler
      *
+     * @param  string $editor - sublime|emacs|textmate|macvim
      * @return void
      */
     public function setExceptionHandler($editor = null)
@@ -126,16 +127,16 @@ class Application
                  ? 'Whoops\Handler\JsonResponseHandler'
                  : 'Whoops\Handler\PrettyPageHandler';
 
-        $this->getContainer()->register('Handler', $handler);
+        if (is_null($editor)) {
+            $this->getContainer()->register('Handler', $handler);
+        } else {
+            $this->getContainer()->register('Handler', $handler)
+                                 ->withMethodCall('setEditor', [$editor]);
+        }
 
         $this->getContainer()->register('Whoops\Run')
-            ->withMethodCall('pushHandler', [function ($editor) {
-                $handler = $this->getContainer()->resolve('Handler');
-                if (! is_null($editor)) {
-                    $handler->setEditor($editor);
-                }
-                return $handler;
-            }])->withMethodCall('register');
+                             ->withMethodCall('pushHandler', ['Handler'])
+                             ->withMethodCall('register');
 
         $this->getContainer()->resolve('Whoops\Run');
     }
