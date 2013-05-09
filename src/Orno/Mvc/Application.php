@@ -34,6 +34,13 @@ class Application
         'autoload_classmap' => []
     ];
 
+    public function __construct()
+    {
+        $this->getContainer()->register('Symfony\Component\HttpFoundation\Request', function () {
+            return Request::createFromGlobals();
+        }, true);
+    }
+
     /**
      * Load Modules
      *
@@ -111,12 +118,21 @@ class Application
      *
      * Register and start the application exception handler
      *
-     * @return boolean
+     * @return void
      */
-    public function setExceptionHandler()
+    public function setExceptionHandler($editor = null)
     {
-        // todo
-        return false;
+        $handler = ($this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request')->isXmlHttpRequest())
+                 ? 'Whoops\Handler\JsonResponseHandler'
+                 : 'Whoops\Handler\PrettyPageHandler';
+
+        $this->getContainer()->register('Handler', $handler);
+
+        $this->getContainer()->register('Whoops\Run')
+                             ->withMethod('pushHandler', ['Handler'])
+                             ->withMethod('register');
+
+        $this->getContainer()->resolve('Whoops\Run');
     }
 
     /**
@@ -178,13 +194,10 @@ class Application
      */
     public function run()
     {
-        // set up the request
-        $request = Request::createFromGlobals();
-
         // start the dispatch process
         $dispatcher = $this->getContainer()->resolve('dispatcher');
 
-        if (! $dispatcher->match($request)) {
+        if (! $dispatcher->match($this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request'))) {
             // do we have a custom 404?
             if (! $dispatcher->match($request, true, true)) {
                 $response = new Response('Error 404 - Page Not Found', 404);
