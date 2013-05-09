@@ -9,6 +9,7 @@ namespace Orno\Mvc;
 
 use Orno\Di\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Application
@@ -34,23 +35,6 @@ class Application
     ];
 
     /**
-     * Module specific config, eventually merged into main config array
-     *
-     * @var array
-     */
-    protected $moduleConfig = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $config
-     */
-    public function __construct(array $config = [])
-    {
-        $this->config = array_merge($this->config, $config);
-    }
-
-    /**
      * Load Modules
      *
      * Load modules and module specific config into the application object
@@ -58,20 +42,23 @@ class Application
      * @throws \Orno\Mvc\Exception\ModuleDefinitionException
      * @return void
      */
-    public function loadModules()
+    public function loadModules(array $config)
     {
-        if (! isset($this->config['modules']) || empty($this->config['modules'])) {
+        if (empty($config)) {
             throw new Exception\ModuleDefinitionException(
                 'No modules were defined in the application configuration array'
             );
         }
 
-        array_walk($this->config['modules'], function ($options, $module) {
+        array_walk($config, function ($options, $module) {
             if (! isset($options['src'])) {
                 throw new Exception\ModuleDefinitionException(
-                    sprintf('Module (%s) must have a "src" key defined in the application configuration array', $module)
+                    sprintf('Module (%s) must have a [src] key defined in the application configuration array', $module)
                 );
             }
+
+            // build namespace autoloader config array
+            $this->config['autoload_namespaces'][$module] = $options['src'];
 
             // set any module specific config paths
             if (isset($options['config'])) {
@@ -96,7 +83,7 @@ class Application
      * @param  string $module
      * @return void
      */
-    public function mergeModuleConfig($configPath, $module) {
+    protected function mergeModuleConfig($configPath, $module) {
         foreach (new \DirectoryIterator($configPath) as $file) {
             if ($file->isFile()) {
                 $key = $file->getBasename('.php');
@@ -111,12 +98,12 @@ class Application
                         );
                     }
 
-                    $this->moduleConfig[$module][$key] = $config;
+                    $this->config[$module][$key] = $config;
                 }
             }
         }
 
-        $this->config = array_merge($this->config, $this->moduleConfig[$module]);
+        $this->config = array_merge($this->config, $this->config[$module]);
     }
 
     /**
@@ -139,9 +126,13 @@ class Application
      *
      * @return void
      */
-    public function setDependencyConfig()
+    public function setDependencyConfig(array $config)
     {
-        $this->getContainer()->setConfig($this->config['dependencies']);
+        if (isset($this->config['dependencies'])) {
+            $config = array_merge($this->config['dependencies'], $config);
+        }
+
+        $this->getContainer()->setConfig($config);
     }
 
     /**
@@ -167,10 +158,12 @@ class Application
      *
      * @return void
      */
-    public function registerRouter()
+    public function registerRouter(array $routes = [])
     {
+        $routes = array_merge($this->config['routes'], $routes);
+
         $this->getContainer()->register('Orno\Mvc\Route\RouteCollection', null, true)
-             ->withMethodCall('setRoutes', [$this->config['routes']]);
+             ->withMethodCall('setRoutes', [$routes]);
 
         $this->getContainer()->register('dispatcher', 'Orno\Mvc\Route\Dispatcher')
              ->withArgument('Orno\Mvc\Route\RouteCollection');
@@ -185,29 +178,29 @@ class Application
      */
     public function run()
     {
-        // register the exception handler
-        $this->setExceptionHandler();
-        // load all modules and config
-        $this->loadModules();
-        // set config for the di container (will later be merged with active module config)
-        $this->setDependencyConfig();
-        // register the autoloader
-        $this->registerAutoloader();
-        // register the router
-        $this->registerRouter();
+        // set up the request
+        $request = Request::createFromGlobals();
 
         // start the dispatch process
         $dispatcher = $this->getContainer()->resolve('dispatcher');
 
-        if ($dispatcher->match(Request::createFromGlobals())) {
+        if (! $dispatcher->match($request)) {
+            // do we have a custom 404?
+            if (! $dispatcher->match($request, true, true)) {
+                $response = new Response('Error 404 - Page Not Found', 404);
+            }
+        } else {
             $module = $dispatcher->getRoute()->getModule();
 
-            if (isset($this->moduleConfig[$module]['dependencies'])) {
-                $this->config = array_merge($this->config, $this->moduleConfig[$module]);
-                $this->setDependencyConfig($this->moduleConfig[$module]['dependencies']);
+            if (isset($this->config[$module]['dependencies'])) {
+                $this->setDependencyConfig($this->config[$module]['dependencies']);
             }
-
-            return $dispatcher->dispatch()->send();
         }
+
+        if (! isset($response)) {
+            $response = $dispatcher->dispatch();
+        }
+
+        $response->send();
     }
 }

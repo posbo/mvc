@@ -29,7 +29,6 @@ class RouteCollection
      * @var array
      */
     protected $routes = [
-        'ANY'     => [],
         'GET'     => [],
         'POST'    => [],
         'PUT'     => [],
@@ -60,10 +59,17 @@ class RouteCollection
      */
     public function setRoutes(array $routes = [])
     {
-        foreach ($routes as $key => $values) {
-            foreach ($values as $route => $destination) {
-                $key = str_replace('any', 'add', $key);
-                $this->{strtolower($key)}($route, $destination);
+        foreach ($routes as $route => $value) {
+            // simple route -> destination
+            if (is_string($value) || $value instanceof \Closure) {
+                $this->get($route, $value);
+                continue;
+            }
+
+            // multiple method types
+            foreach ($value as $method => $destination) {
+                $method = strtolower($method);
+                $this->{$method}($route, $destination);
             }
         }
     }
@@ -90,7 +96,7 @@ class RouteCollection
      * @param  string         $method
      * @return void
      */
-    public function add($route, $destination, $method = 'any')
+    public function add($route, $destination, $method = 'get')
     {
         $method = strtoupper($method);
         $closure = false;

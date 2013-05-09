@@ -60,14 +60,15 @@ class Dispatcher
      * Match the path against a route
      *
      * @param  \Symfony\Component\HttpFoundation\Request $request
-     * @param  boolean $any - whether to check the 'ANY' request method
+     * @param  boolean $get - whether to fall back to the 'GET' request method
+     * @param  boolean $notFound - set the route as a 404
      * @return boolean
      */
-    public function match(Request $request, $any = false)
+    public function match(Request $request, $get = false, $notFound = false)
     {
-        $this->path = $request->getPathInfo();
+        $this->path = ($notFound === false) ? $request->getPathInfo() : '/404';
 
-        $method = ($any === true) ? 'ANY' : $request->getMethod();
+        $method = ($get === true) ? 'GET' : $request->getMethod();
         $routes = $this->collection->getRoutes()[$method];
 
         // loop through the routes array for a match
@@ -86,9 +87,9 @@ class Dispatcher
             return true;
         }
 
-        // if we have a request method and have not matched a route, we need to
-        // try to match a route bound to ANY request method
-        if ($any === false) {
+        // if we haven't matched a route for a request method other than GET,
+        // we fall back to the GET method
+        if ($get === false) {
             return $this->match($request, true);
         }
 
@@ -113,14 +114,12 @@ class Dispatcher
 
         $arguments = $this->getArguments($this->path);
 
-        // run the actual route
         $response = $this->getContainer()->resolve($this->getRoute()->getController(), $arguments);
 
         if (! $this->getRoute()->isClosure()) {
             $response = (new \ReflectionMethod($response, $this->getRoute()->getAction()))->invokeArgs($response, $arguments);
         }
 
-        // send the response to the buffer
         if (! $response instanceof Response) {
             $response = new Response($response, 200, ['content-type' => 'text/html']);
         }
@@ -141,7 +140,7 @@ class Dispatcher
         $segments  = explode('/', trim($this->path, '/'));
 
         if (! empty($segments)) {
-            $keys = preg_grep('/\([^\/].*?\)/', $this->getRoute()->getUriSegments());
+            $keys = preg_grep('/\(.*?\)/', $this->getRoute()->getUriSegments());
         }
 
         if (! empty($keys)) {

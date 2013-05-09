@@ -8,17 +8,17 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('Orno\Mvc\Exception\ModuleDefinitionException');
         $app = new Application;
-        $app->loadModules();
+        $app->loadModules([]);
     }
 
     public function testLoadModulesThrowsExceptionWithNoModuleSrcPath()
     {
         $this->setExpectedException('Orno\Mvc\Exception\ModuleDefinitionException');
 
-        $config = ['modules' => ['Application' => []]];
+        $config = ['Application' => []];
 
-        $app = new Application($config);
-        $app->loadModules();
+        $app = new Application;
+        $app->loadModules($config);
     }
 
     public function testLoadModulesThrowsExceptionWithBadlyFormedConfigFile()
@@ -26,40 +26,33 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('Orno\Mvc\Exception\ModuleDefinitionException');
 
         $config = [
-            'modules' => [
-                'Application' => [
-                    'src' => __DIR__ . '/Assets/Application/src',
-                    'config' => __DIR__ . '/Assets/Application/bad-config'
-                ]
+            'Application' => [
+                'src' => __DIR__ . '/Assets/Application/src',
+                'config' => __DIR__ . '/Assets/Application/bad-config'
             ]
         ];
 
-        $app = new Application($config);
-        $app->loadModules();
+        $app = new Application;
+        $app->loadModules($config);
     }
 
     public function testLoadModulesResolvesConfigPath()
     {
         $config = [
-            'modules' => [
-                'Application' => [
-                    'src' => __DIR__ . '/Assets/Application/src'
-                ],
-                'SecondModule' => [
-                    'src' => __DIR__ . '/Assets/SecondModule/src'
-                ]
+            'Application' => [
+                'src' => __DIR__ . '/Assets/Application/src'
+            ],
+            'SecondModule' => [
+                'src' => __DIR__ . '/Assets/SecondModule/src'
             ]
         ];
 
-        $app = new Application($config);
-        $app->loadModules();
+        $app = new Application;
+        $app->loadModules($config);
 
         $config = $this->readAttribute($app, 'config');
-        $moduleConfig = $this->readAttribute($app, 'moduleConfig');
 
         $this->assertArrayHasKey('dependencies', $config);
-        $this->assertArrayHasKey('Application', $moduleConfig);
-        $this->assertArrayHasKey('dependencies', $moduleConfig['Application']);
     }
 
     /**
@@ -78,6 +71,6 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        (new Application($config))->run();
+
     }
 }
