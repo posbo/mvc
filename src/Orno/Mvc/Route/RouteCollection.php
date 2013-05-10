@@ -98,6 +98,7 @@ class RouteCollection
      */
     public function add($route, $destination, $method = 'get')
     {
+        $route = '/' . trim($route, '/');
         $method = strtoupper($method);
         $closure = false;
 
