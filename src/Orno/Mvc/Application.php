@@ -118,7 +118,7 @@ class Application
      *
      * Register and start the application exception handler
      *
-     * @param  string $editor - sublime|emacs|textmate|macvim
+     * @param  string|\Closure $editor - sublime|emacs|textmate|macvim
      * @return void
      */
     public function setExceptionHandler($editor = null)
