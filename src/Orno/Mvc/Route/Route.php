@@ -7,6 +7,8 @@
  */
 namespace Orno\Mvc\Route;
 
+use Orno\Di\ContainerAwareTrait;
+
 /**
  * Route
  *
@@ -14,6 +16,11 @@ namespace Orno\Mvc\Route;
  */
 class Route
 {
+    /**
+     * Access to the container
+     */
+    use ContainerAwareTrait;
+
     /**
      * The route path
      *
@@ -148,7 +155,8 @@ class Route
      * What scheme should the route respond to, currently only has support for
      * HTTP and HTTPS, default will always be HTTP unless explicitly set to HTTPS
      *
-     * @param string $scheme
+     * @param  string $scheme
+     * @return void
      */
     public function setScheme($scheme = 'http')
     {
@@ -159,7 +167,7 @@ class Route
      * Check if the route matches the scheme
      *
      * @param  string $scheme
-     * @return boolean         [description]
+     * @return boolean
      */
     public function isSchemeMatch($scheme)
     {
