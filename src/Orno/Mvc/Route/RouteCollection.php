@@ -94,7 +94,7 @@ class RouteCollection
      * @param  string         $route
      * @param  string|closure $destination
      * @param  string         $method
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function add($route, $destination, $method = 'get')
     {
@@ -120,7 +120,10 @@ class RouteCollection
 
         $action = (is_array($destination)) ? $destination[1] : null;
 
-        $this->routes[$method][] = new Route($route, $controller, $action, $method, $closure);
+        $route = new Route($route, $controller, $action, $method, $closure);
+        $this->routes[$method][] = $route;
+
+        return $route;
     }
 
     /**
@@ -130,11 +133,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function get($route, $destination)
     {
-        $this->add($route, $destination, 'get');
+        return $this->add($route, $destination, 'get');
     }
 
     /**
@@ -144,11 +147,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function post($route, $destination)
     {
-        $this->add($route, $destination, 'post');
+        return $this->add($route, $destination, 'post');
     }
 
     /**
@@ -158,11 +161,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function put($route, $destination)
     {
-        $this->add($route, $destination, 'put');
+        return $this->add($route, $destination, 'put');
     }
 
     /**
@@ -172,11 +175,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function patch($route, $destination)
     {
-        $this->add($route, $destination, 'patch');
+        return $this->add($route, $destination, 'patch');
     }
 
     /**
@@ -186,11 +189,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function delete($route, $destination)
     {
-        $this->add($route, $destination, 'delete');
+        return $this->add($route, $destination, 'delete');
     }
 
     /**
@@ -200,11 +203,11 @@ class RouteCollection
      *
      * @param  string         $route
      * @param  string|closure $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function options($route, $destination)
     {
-        $this->add($route, $destination, 'options');
+        return $this->add($route, $destination, 'options');
     }
 
     /**
@@ -214,7 +217,7 @@ class RouteCollection
      *
      * @param  string $route
      * @param  string $destination
-     * @return void
+     * @return \Orno\Mvc\Route\Route
      */
     public function restful($route, $destination)
     {

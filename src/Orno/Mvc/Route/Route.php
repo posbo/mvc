@@ -19,14 +19,14 @@ class Route
      *
      * @var string
      */
-    protected $route;
+    protected $path;
 
     /**
-     * Array of segments in the route path
+     * The regex pattern to match the route against
      *
-     * @var array
+     * @var string
      */
-    protected $segments = [];
+    protected $regex;
 
     /**
      * Points to item registered with Orno\Di\Container
@@ -43,18 +43,25 @@ class Route
     protected $action;
 
     /**
-     * Will assume ANY method if null
+     * The request method this route should respond to
      *
      * @var string
      */
     protected $method;
 
     /**
+     * The scheme for which the route should respond to
+     *
+     * @var string
+     */
+    protected $scheme = 'http';
+
+    /**
      * The module that the controller resides in
      *
      * @var string
      */
-    protected $module;
+    protected $module = null;
 
     /**
      * Is the controller a closure?
@@ -73,65 +80,90 @@ class Route
      * @param boolean $closure
      */
     public function __construct(
-        $route = null,
+        $path       = null,
         $controller = null,
-        $action = null,
-        $method = null,
-        $closure = false
+        $action     = null,
+        $method     = null,
+        $closure    = false
     ) {
+        $this->path       = $path;
         $this->controller = $controller;
         $this->action     = $action;
         $this->method     = strtoupper($method);
-        $this->closure    = $closure;
-        $this->route      = $this->regexify($route);
-
-        $this->setUriSegments($route);
+        $this->closure    = (bool) $closure;
     }
 
     /**
-     * Regiexify
+     * Build the regex to patch against path info
      *
-     * Transform route into a matchable regular expresion
-     *
-     * @param  string $route
-     * @return string
-     */
-    public function regexify($route)
-    {
-        $patterns = ['/\/\((\?.*?)\)/', '/\([^\?].*?\)/'];
-        $replacements = ['(.+?)?', '(.+?)'];
-
-        $route = preg_replace($patterns, $replacements, $route);
-        return str_replace('(.+?)?', '(\\/.+?)?', $route);
-    }
-
-    /**
-     * Set URI Segments
-     *
-     * Explodes the route path in to segments
-     *
-     * @param  string $route
      * @return void
      */
-    public function setUriSegments($route)
+    public function setRegex()
     {
-        $this->segments = explode('/', trim($route, '/'));
+        $segments = explode('/', trim($this->path, '/'));
+
+        // differentiate between optional and required wildcard segments
+        $required = preg_grep('/\([^\?].*?\)/', $segments);
+        $optional = preg_grep('/\((\?.*?)\)/', $segments);
+
+        $wildcards = $required + $optional;
+
+        // loop through wildcards and replace with appropriate regex
+        foreach ($wildcards as $key => $value) {
+            $segments[$key] = preg_match('/(\?.*?)/', $value) ? '(\\/[^\\/]+?)?' : '([^\\/]+?)';
+        }
+
+        // build the full regex to match against the path info
+        $this->regex = implode('/', $segments);
+        $this->regex = '#^/' . str_replace('/(\/', '(\\/', $this->regex) . '$#';
     }
 
     /**
-     * Get URI Segments
+     * Check if this route is a regex match
      *
-     * Return the segments array
-     *
-     * @return array
+     * @param  string $pathInfo
+     * @return boolean
      */
-    public function getUriSegments()
+    public function isRegexMatch($pathInfo)
     {
-        if (empty($this->segments)) {
-            $this->setUriSegments($this->route);
+        if (is_null($this->regex)) {
+            $this->setRegex();
         }
 
-        return $this->segments;
+        return (bool) preg_match($this->regex, $pathInfo);
+    }
+
+    /**
+     * Check if the route matches the request method
+     *
+     * @param  string $method
+     * @return boolean
+     */
+    public function isMethodMatch($method)
+    {
+        return (strtoupper($method) === $this->method);
+    }
+
+    /**
+     * What scheme should the route respond to, currently only has support for
+     * HTTP and HTTPS, default will always be HTTP unless explicitly set to HTTPS
+     *
+     * @param string $scheme
+     */
+    public function setScheme($scheme = 'http')
+    {
+        $this->scheme = ($scheme === 'https') ? 'https' : 'http';
+    }
+
+    /**
+     * Check if the route matches the scheme
+     *
+     * @param  string $scheme
+     * @return boolean         [description]
+     */
+    public function isSchemeMatch($scheme)
+    {
+        return ($scheme === $this->scheme);
     }
 
     /**
@@ -139,13 +171,12 @@ class Route
      *
      * Use the first level of the controller namespace as the module
      *
-     * @param  string $controller
      * @return void
      */
-    public function setModule($controller)
+    protected function setModule()
     {
-        if (strpos(trim($controller, '\\'), '\\') !== false) {
-            $this->module = explode('\\', trim($controller, '\\'))[0];
+        if (strpos(trim($this->controller, '\\'), '\\') !== false) {
+            $this->module = explode('\\', trim($this->controller, '\\'))[0];
         }
     }
 
@@ -163,18 +194,6 @@ class Route
         }
 
         return $this->module;
-    }
-
-    /**
-     * Get Route
-     *
-     * Return the route path string
-     *
-     * @return string
-     */
-    public function getRoute()
-    {
-        return $this->route;
     }
 
     /**
@@ -199,18 +218,6 @@ class Route
     public function getAction()
     {
         return $this->action;
-    }
-
-    /**
-     * Get Method
-     *
-     * Return the HTTP method type
-     *
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->method;
     }
 
     /**
