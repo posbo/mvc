@@ -13,23 +13,16 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
                 'post' => 'TestController::testPostAction'
             ],
             '/test/route2' => [
-                'get' => function () {
-                    return true;
-                },
-                'post' => function () {
-                    return true;
-                }
-            ]
+                'get' => function () { return true; },
+                'post' => function () { return true; }
+            ],
+            '/test/route3' => 'TestController::testAction'
         ];
 
-        $collection = new RouteCollection($routes);
+        $rc = new RouteCollection($routes);
 
-        foreach ($collection->getRoutes()['GET'] as $route) {
-            $this->assertTrue($route instanceof Route);
-        }
-
-        foreach ($collection->getRoutes()['POST'] as $route) {
-            $this->assertTrue($route instanceof Route);
+        foreach ($rc->getRoutes() as $route) {
+            $this->assertInstanceOf('Orno\Mvc\Route\Route', $route);
         }
     }
 
@@ -44,12 +37,12 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $container->expects($this->any())
                   ->method('register');
 
-        $route = new RouteCollection;
+        $rc = new RouteCollection;
 
-        $route->setContainer($container);
+        $rc->setContainer($container);
 
-        $route->add('/test/route', 'Controller::action');
-        $this->assertTrue($route->getContainer()->registered('Controller'));
+        $rc->add('/test/route', 'Controller::action');
+        $this->assertTrue($rc->getContainer()->registered('Controller'));
     }
 
     public function testAddRouteWithClosure()
@@ -63,51 +56,168 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $container->expects($this->any())
                   ->method('register');
 
-        $route = new RouteCollection;
+        $rc = new RouteCollection;
 
-        $route->setContainer($container);
+        $rc->setContainer($container);
 
-        $route->add(
-            '/test/route',
-            function () {
-                return true;
-            }
-        );
+        $rc->add('/test/route', function () {
+            return true;
+        });
 
-        $this->assertTrue($route->getContainer()->registered('/test/route'));
+        $this->assertTrue($rc->getContainer()->registered('/test/route'));
     }
 
     public function testProxyMethodsRegisterCorrectly()
     {
-        $route = new RouteCollection;
+        $rc = new RouteCollection;
 
-        $route->add('/any/route', 'Controller::anyAction');
-        $route->get('/get/route', 'Controller::getAction');
-        $route->post('/post/route', 'Controller::postAction');
-        $route->put('/put/route', 'Controller::putAction');
-        $route->patch('/patch/route', 'Controller::patchAction');
-        $route->delete('/delete/route', 'Controller::deleteAction');
-        $route->options('/options/route', 'Controller::optionsAction');
+        $rc->add('/any/route', 'Controller::anyAction');
+        $rc->get('/get/route', 'Controller::getAction');
+        $rc->post('/post/route', 'Controller::postAction');
+        $rc->put('/put/route', 'Controller::putAction');
+        $rc->patch('/patch/route', 'Controller::patchAction');
+        $rc->delete('/delete/route', 'Controller::deleteAction');
+        $rc->options('/options/route', 'Controller::optionsAction');
 
-        $this->assertSame(count($route->getRoutes()), 6);
+        $this->assertSame(count($rc->getRoutes()), 7);
 
-        foreach ($route->getRoutes() as $method) {
-            foreach ($method as $route) {
-                $this->assertTrue($route instanceof Route);
-            }
+        foreach ($rc->getRoutes() as $route) {
+            $this->assertInstanceOf('Orno\Mvc\Route\Route', $route);
         }
     }
 
     public function testRestfulRouteCreatesAllRoutes()
     {
-        $route = new RouteCollection;
+        $rc = new RouteCollection;
 
-        $route->restful('/restful', 'RestfulController');
+        $rc->restful('/restful', 'RestfulController');
 
-        foreach ($route->getRoutes() as $method) {
-            foreach ($method as $route) {
-                $this->assertTrue($route instanceof Route);
-            }
+        foreach ($rc->getRoutes() as $route) {
+            $this->assertInstanceOf('Orno\Mvc\Route\Route', $route);
         }
+    }
+
+    public function testMatchesRoute()
+    {
+        $rc = new RouteCollection();
+
+        $routes = new \ReflectionProperty($rc, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($rc, $this->mockMatchableRoutesArray());
+
+        $this->assertInstanceOf('Orno\Mvc\Route\Route', $rc->match('/'));
+    }
+
+    public function testNoMatchReturnsFalse()
+    {
+        $rc = new RouteCollection();
+
+        $routes = new \ReflectionProperty($rc, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($rc, $this->mockUnMatchableRoutesArray());
+
+        $this->assertFalse($rc->match('/', 'post'));
+    }
+
+    public function mockMatchableRoutesArray()
+    {
+        $route1 = $this->getMock('Orno\Mvc\Route\Route');
+        $route1->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(true));
+        $route1->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(false));
+        $route1->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        $route2 = $this->getMock('Orno\Mvc\Route\Route');
+        $route2->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(false));
+        $route2->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(false));
+        $route2->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        $route3 = $this->getMock('Orno\Mvc\Route\Route');
+        $route3->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(false));
+        $route3->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(true));
+        $route3->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(false));
+
+        $route4 = $this->getMock('Orno\Mvc\Route\Route');
+        $route4->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(true));
+        $route4->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(true));
+        $route4->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        return [
+            $route1, $route2, $route3, $route4
+        ];
+    }
+
+    public function mockUnMatchableRoutesArray()
+    {
+        $route1 = $this->getMock('Orno\Mvc\Route\Route');
+        $route1->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(true));
+        $route1->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(false));
+        $route1->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        $route2 = $this->getMock('Orno\Mvc\Route\Route');
+        $route2->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(false));
+        $route2->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(false));
+        $route2->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        $route3 = $this->getMock('Orno\Mvc\Route\Route');
+        $route3->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(false));
+        $route3->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(true));
+        $route3->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(false));
+
+        $route4 = $this->getMock('Orno\Mvc\Route\Route');
+        $route4->expects($this->any())
+               ->method('isRegexMatch')
+               ->will($this->returnValue(true));
+        $route4->expects($this->any())
+               ->method('isMethodMatch')
+               ->will($this->returnValue(false));
+        $route4->expects($this->any())
+               ->method('isSchemeMatch')
+               ->will($this->returnValue(true));
+
+        return [
+            $route1, $route2, $route3, $route4
+        ];
     }
 }

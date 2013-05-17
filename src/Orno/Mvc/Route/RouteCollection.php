@@ -9,7 +9,6 @@ namespace Orno\Mvc\Route;
 
 use Orno\Di\ContainerAwareTrait;
 use Orno\Mvc\Route\Route;
-use Closure;
 
 /**
  * Route Collection
@@ -19,7 +18,7 @@ use Closure;
 class RouteCollection
 {
     /**
-     * Access the container
+     * Access to the container
      */
     use ContainerAwareTrait;
 
@@ -28,14 +27,7 @@ class RouteCollection
      *
      * @var array
      */
-    protected $routes = [
-        'GET'     => [],
-        'POST'    => [],
-        'PUT'     => [],
-        'PATCH'   => [],
-        'DELETE'  => [],
-        'OPTIONS' => []
-    ];
+    protected $routes = [];
 
     /**
      * Constructor
@@ -44,9 +36,7 @@ class RouteCollection
      */
     public function __construct(array $config = [])
     {
-        if (isset($config['routes'])) {
-            $this->setRoutes($config['routes']);
-        }
+        $this->setRoutes($config);
     }
 
     /**
@@ -91,9 +81,9 @@ class RouteCollection
      *
      * Add a route to the routes collection
      *
-     * @param  string         $route
-     * @param  string|closure $destination
-     * @param  string         $method
+     * @param  string          $route
+     * @param  string|\Closure $destination
+     * @param  string          $method
      * @return \Orno\Mvc\Route\Route
      */
     public function add($route, $destination, $method = 'get')
@@ -111,7 +101,7 @@ class RouteCollection
             }
         }
 
-        if ($destination instanceof Closure) {
+        if ($destination instanceof \Closure) {
             $controller = $route;
             $closure    = true;
 
@@ -121,7 +111,7 @@ class RouteCollection
         $action = (is_array($destination)) ? $destination[1] : null;
 
         $route = new Route($route, $controller, $action, $method, $closure);
-        $this->routes[$method][] = $route;
+        $this->routes[] = $route;
 
         return $route;
     }
@@ -230,5 +220,28 @@ class RouteCollection
         $this->patch($resource, $destination . '::update');
         $this->delete($resource, $destination . '::delete');
         $this->options($route, $destination . '::options');
+    }
+
+    /**
+     * Match and return a route object
+     *
+     * @param  string $path
+     * @param  string $method
+     * @param  string $scheme
+     * @return \Orno\Mvc\Route\Route|false
+     */
+    public function match($path, $method = 'get', $scheme = 'http')
+    {
+        foreach ($this->getRoutes() as $route) {
+            if ($route->isRegexMatch($path) && $route->isMethodMatch($method) && $route->isSchemeMatch($scheme)) {
+                return $route;
+            }
+        }
+
+        if ($method !== 'get') {
+            return $this->match($path, 'get', $scheme);
+        }
+
+        return false;
     }
 }
