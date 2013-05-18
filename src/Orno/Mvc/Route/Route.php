@@ -8,6 +8,7 @@
 namespace Orno\Mvc\Route;
 
 use Orno\Di\ContainerAwareTrait;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Route
@@ -27,6 +28,13 @@ class Route
      * @var string
      */
     protected $path;
+
+    /**
+     * The path from the incoming request
+     *
+     * @var string
+     */
+    protected $pathInfo;
 
     /**
      * The regex pattern to match the route against
@@ -133,6 +141,8 @@ class Route
      */
     public function isRegexMatch($pathInfo)
     {
+        $this->pathInfo = $pathInfo;
+
         if (is_null($this->regex)) {
             $this->setRegex();
         }
@@ -236,5 +246,77 @@ class Route
     public function isClosure()
     {
         return $this->closure;
+    }
+
+    /**
+     * Build an arguments array to pass in named arguments to the action
+     *
+     * @param  \ReflectionMethod $method
+     * @return array
+     */
+    public function getArguments(\ReflectionMethod $method = null)
+    {
+        $arguments = [];
+        $named = [];
+
+        // split the path and request path strings
+        $segments = explode('/', trim($this->path, '/'));
+        $values = explode('/', trim($this->pathInfo, '/'));
+
+        // grep for wildcards and map names to values
+        foreach (preg_grep('#^\\((.+)\\)$#', $segments) as $key => $segment) {
+            $name = str_replace(['(', ')', '?'], null, $segment);
+
+            if (isset($values[$key])) {
+                $named[$name] = $values[$key];
+            }
+
+            // if we don't have a method to reflect on we just pass in arguments
+            // by order rather than by name
+            if (is_null($method)) {
+                $arguments[] = (array_key_exists($key, $values)) ? $values[$key] : null;
+            }
+        }
+
+        // again, if no method to reflect on, just return the indexed array
+        if (is_null($method)) {
+            return $arguments;
+        }
+
+        // reflect on parameters and build arguments array
+        foreach ($method->getParameters() as $param) {
+            if (array_key_exists($param->getName(), $named)) {
+                $arguments[] = $named[$param->getName()];
+                continue;
+            }
+
+            // if the wildcard is optional and not provided, get the default value
+            if ($param->isOptional()) {
+                $arguments[] = $param->getDefaultValue();
+            }
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * Dispatch the route
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function dispatch()
+    {
+        $response = $this->getContainer()->resolve($this->getController(), $this->getArguments());
+
+        if (! $this->isClosure()) {
+            $action = new \ReflectionMethod($response, $this->getAction());
+            $response = $action->invokeArgs($response, $this->getArguments($action));
+        }
+
+        if (! $response instanceof Response) {
+            $response = new Response($response);
+        }
+
+        return $response;
     }
 }
