@@ -139,6 +139,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
                   ->will($this->returnValue($controller));
 
         $r = new Route('/test/(required1)/(required2)/(?optional)', 'Controller', 'action', 'get');
+        $r->setContainer($container);
 
         $r->isRegexMatch('/test/some-segment1/some-segment2');
 
