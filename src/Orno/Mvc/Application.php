@@ -34,10 +34,11 @@ class Application
         'autoload_classmap' => []
     ];
 
-    public function __construct()
+    public function __construct(Request $request = null)
     {
-        $this->getContainer()->register('Symfony\Component\HttpFoundation\Request', function () {
-            return Request::createFromGlobals();
+        $request = (is_null($request)) ? Request::createFromGlobals() : $request;
+        $this->getContainer()->register('Symfony\Component\HttpFoundation\Request', function () use ($request) {
+            return $request;
         }, true);
     }
 
@@ -166,11 +167,11 @@ class Application
      */
     public function registerAutoloader()
     {
-        $this->getContainer()->register('autoloader', 'Orno\Loader\Autoloader')
+        $this->getContainer()->register('Orno\Loader\Autoloader')
              ->withMethodCall('registerNamespaces', [$this->config['autoload_namespaces']])
              ->withMethodCall('registerClasses', [$this->config['autoload_classmap']]);
 
-        $this->getContainer()->resolve('autoloader')->register();
+        $this->getContainer()->resolve('Orno\Loader\Autoloader')->register();
     }
 
     /**
@@ -184,11 +185,29 @@ class Application
     {
         $routes = array_merge($this->config['routes'], $routes);
 
-        $this->getContainer()->register('Orno\Mvc\Route\RouteCollection', null, true)
+        $this->getContainer()->register('Orno\Mvc\Route\RouteCollection', null)
              ->withMethodCall('setRoutes', [$routes]);
+    }
 
-        $this->getContainer()->register('dispatcher', 'Orno\Mvc\Route\Dispatcher')
-             ->withArgument('Orno\Mvc\Route\RouteCollection');
+    /**
+     * Return a 404 response
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function notFoundException()
+    {
+        $router = $this->getContainer()->resolve('Orno\Mvc\Route\RouteCollection');
+
+        // try to match any custom 404 route
+        $route = $router->match('/404');
+
+        // if no custom route, create and return a 404 response
+        if ($route === false) {
+            return (new Response('Error 404 - Page Not Found!', 404))->send();
+        }
+
+        // dispatch the custom route
+        return $route->dispatch()->send();
     }
 
     /**
@@ -196,30 +215,27 @@ class Application
      *
      * Let's Go!
      *
-     * @return void
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function run()
     {
-        // start the dispatch process
-        $dispatcher = $this->getContainer()->resolve('dispatcher');
+        $request = $this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request');
+        $router = $this->getContainer()->resolve('Orno\Mvc\Route\RouteCollection');
 
-        if (! $dispatcher->match($this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request'))) {
-            // do we have a custom 404?
-            if (! $dispatcher->match($request, true, true)) {
-                $response = new Response('Error 404 - Page Not Found', 404);
-            }
-        } else {
-            $module = $dispatcher->getRoute()->getModule();
+        // match the route
+        $route = $router->match($request->getPathInfo(), $request->getMethod(), $request->getScheme());
 
-            if (isset($this->config[$module]['dependencies'])) {
-                $this->setDependencyConfig($this->config[$module]['dependencies']);
-            }
+        // if no match throw a 404
+        if ($route === false) {
+            return $this->notFoundException();
         }
 
-        if (! isset($response)) {
-            $response = $dispatcher->dispatch();
+        // give active module config priority
+        if (array_key_exists($route->getModule(), $this->config)) {
+            $this->setDependencyConfig($this->config[$route->getModule()]['dependencies']);
         }
 
-        $response->send();
+        // dispatch the route
+        return $route->dispatch()->send();
     }
 }

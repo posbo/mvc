@@ -238,7 +238,7 @@ class RouteCollection
             }
         }
 
-        if ($method !== 'get') {
+        if (strtolower($method) !== 'get') {
             return $this->match($path, 'get', $scheme);
         }
 

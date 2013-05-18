@@ -142,10 +142,7 @@ class Route
     public function isRegexMatch($pathInfo)
     {
         $this->pathInfo = $pathInfo;
-
-        if (is_null($this->regex)) {
-            $this->setRegex();
-        }
+        $this->setRegex();
 
         return (bool) preg_match($this->regex, $pathInfo);
     }

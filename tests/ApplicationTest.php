@@ -55,22 +55,45 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('dependencies', $config);
     }
 
-    /**
-     * @runInSeperateProcess
-     */
-    public function testApplicationRuns()
+    public function testFullBoostrapProcessRuns()
     {
-        $config = [
-            'modules' => [
-                'Application' => [
-                    'src' => __DIR__ . '/Assets/Application/src'
-                ],
-                'SecondModule' => [
-                    'src' => __DIR__ . '/Assets/SecondModule/src'
-                ]
-            ]
+        $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
+                        ->disableOriginalConstructor()
+                        ->getMock();
+
+        $request->expects($this->once())
+                ->method('getPathInfo')
+                ->will($this->returnValue('/hello/phil'));
+
+        $request->expects($this->once())
+                ->method('getMethod')
+                ->will($this->returnValue('GET'));
+
+        $request->expects($this->once())
+                ->method('getScheme')
+                ->will($this->returnValue('http'));
+
+        $request->expects($this->once())
+                ->method('isXmlHttpRequest')
+                ->will($this->returnValue(false));
+
+        $app = new Application($request);
+
+        $routes = [
+            '/hello/(name)' => function ($name) {
+                return 'Hello ' . ucwords($name);
+            }
         ];
 
+        $app->setExceptionHandler('sublime');
+        $app->registerAutoloader();
+        $app->registerRouter($routes);
 
+        ob_start();
+        $app->run();
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertSame($content, 'Hello Phil');
     }
 }
