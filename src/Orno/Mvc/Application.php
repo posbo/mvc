@@ -37,7 +37,7 @@ class Application
     public function __construct(Request $request = null)
     {
         $request = (is_null($request)) ? Request::createFromGlobals() : $request;
-        $this->getContainer()->register('Symfony\Component\HttpFoundation\Request', function () use ($request) {
+        $this->getContainer()->register('request', function () use ($request) {
             return $request;
         }, true);
     }
@@ -124,22 +124,22 @@ class Application
      */
     public function setExceptionHandler($editor = null)
     {
-        $handler = ($this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request')->isXmlHttpRequest())
+        $handler = ($this->getContainer()->resolve('request')->isXmlHttpRequest())
                  ? 'Whoops\Handler\JsonResponseHandler'
                  : 'Whoops\Handler\PrettyPageHandler';
 
         if (is_null($editor)) {
-            $this->getContainer()->register('Handler', $handler);
+            $this->getContainer()->register('exception_handler', $handler);
         } else {
-            $this->getContainer()->register('Handler', $handler)
+            $this->getContainer()->register('exception_handler', $handler)
                                  ->withMethodCall('setEditor', [$editor]);
         }
 
-        $this->getContainer()->register('Whoops\Run')
-                             ->withMethodCall('pushHandler', ['Handler'])
+        $this->getContainer()->register('whoops', 'Whoops\Run')
+                             ->withMethodCall('pushHandler', ['exception_handler'])
                              ->withMethodCall('register');
 
-        $this->getContainer()->resolve('Whoops\Run');
+        $this->getContainer()->resolve('whoops');
     }
 
     /**
@@ -167,11 +167,11 @@ class Application
      */
     public function registerAutoloader()
     {
-        $this->getContainer()->register('Orno\Loader\Autoloader')
-             ->withMethodCall('registerNamespaces', [$this->config['autoload_namespaces']])
-             ->withMethodCall('registerClasses', [$this->config['autoload_classmap']]);
+        $this->getContainer()->register('autoloader', 'Orno\Loader\Autoloader')
+                             ->withMethodCall('registerNamespaces', [$this->config['autoload_namespaces']])
+                             ->withMethodCall('registerClasses', [$this->config['autoload_classmap']]);
 
-        $this->getContainer()->resolve('Orno\Loader\Autoloader')->register();
+        $this->getContainer()->resolve('autoloader')->register();
     }
 
     /**
@@ -185,8 +185,8 @@ class Application
     {
         $routes = array_merge($this->config['routes'], $routes);
 
-        $this->getContainer()->register('Orno\Mvc\Route\RouteCollection', null)
-             ->withMethodCall('setRoutes', [$routes]);
+        $this->getContainer()->register('router', 'Orno\Mvc\Route\RouteCollection', true)
+                             ->withMethodCall('setRoutes', [$routes]);
     }
 
     /**
@@ -196,7 +196,7 @@ class Application
      */
     public function notFoundException()
     {
-        $router = $this->getContainer()->resolve('Orno\Mvc\Route\RouteCollection');
+        $router = $this->getContainer()->resolve('router');
 
         // try to match any custom 404 route
         $route = $router->match('/404');
@@ -219,8 +219,8 @@ class Application
      */
     public function run()
     {
-        $request = $this->getContainer()->resolve('Symfony\Component\HttpFoundation\Request');
-        $router = $this->getContainer()->resolve('Orno\Mvc\Route\RouteCollection');
+        $request = $this->getContainer()->resolve('request');
+        $router = $this->getContainer()->resolve('router');
 
         // match the route
         $route = $router->match($request->getPathInfo(), $request->getMethod(), $request->getScheme());
