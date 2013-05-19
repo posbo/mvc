@@ -201,13 +201,11 @@ class Application
         // try to match any custom 404 route
         $route = $router->match('/404');
 
-        // if no custom route, create and return a 404 response
-        if ($route === false) {
-            return (new Response('Error 404 - Page Not Found!', 404))->send();
-        }
+        // set response body
+        $body = ($route !== false) ? $route->dispatch()->getContent() : 'Error 404 - Page Not Found!';
 
-        // dispatch the custom route
-        return $route->dispatch()->send();
+        // send the 404 response
+        return (new Response($body, 404))->send();
     }
 
     /**
