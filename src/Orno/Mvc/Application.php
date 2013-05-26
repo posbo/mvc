@@ -8,8 +8,9 @@
 namespace Orno\Mvc;
 
 use Orno\Di\ContainerAwareTrait;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Orno\Http\RequestInterface;
+use Orno\Http\ResponseInterface;
+use Orno\Http\Request;
 
 /**
  * Application
@@ -34,9 +35,15 @@ class Application
         'autoload_classmap' => []
     ];
 
-    public function __construct(Request $request = null)
+    /**
+     * Constructor
+     *
+     * @param \Orno\Http\RequestInterface $request
+     */
+    public function __construct(RequestInterface $request = null)
     {
-        $request = (is_null($request)) ? Request::createFromGlobals() : $request;
+        $request = (is_null($request)) ? (new Request)->build() : $request;
+
         $this->getContainer()->register('request', function () use ($request) {
             return $request;
         }, true);

@@ -8,7 +8,8 @@
 namespace Orno\Mvc\Route;
 
 use Orno\Di\ContainerAwareTrait;
-use Symfony\Component\HttpFoundation\Response;
+use Orno\Http\ResponseInterface;
+use Orno\Http\Response;
 
 /**
  * Route
@@ -310,7 +311,7 @@ class Route
             $response = $action->invokeArgs($response, $this->getArguments($action));
         }
 
-        if (! $response instanceof Response) {
+        if (! $response instanceof ResponseInterface) {
             $response = new Response($response);
         }
 
