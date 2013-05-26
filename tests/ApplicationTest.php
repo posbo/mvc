@@ -57,7 +57,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function testFullBoostrapProcessRuns()
     {
-        $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
+        $request = $this->getMockBuilder('Orno\Http\Request')
                         ->disableOriginalConstructor()
                         ->getMock();
 
@@ -74,7 +74,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue('http'));
 
         $request->expects($this->once())
-                ->method('isXmlHttpRequest')
+                ->method('isAjax')
                 ->will($this->returnValue(false));
 
         $app = new Application($request);

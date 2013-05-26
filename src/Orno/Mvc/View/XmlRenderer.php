@@ -9,7 +9,7 @@ namespace Orno\Mvc\View;
 
 use Orno\Mvc\View\AbstractRenderer;
 use SimpleXMLElement;
-use Symfony\Component\HttpFoundation\Response;
+use Orno\Http\Response;
 
 /**
  * XML Renderer

@@ -8,7 +8,7 @@
 namespace Orno\Mvc\View;
 
 use Orno\Mvc\View\AbstractRenderer;
-use Symfony\Component\HttpFoundation\Response;
+use Orno\Http\Response;
 
 /**
  * Renderer

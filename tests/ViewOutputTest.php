@@ -6,7 +6,7 @@ use Orno\Mvc\View\XmlRenderer;
 use Orno\Mvc\View\Renderer;
 use SimpleXMLElement;
 use stdClass;
-use Symfony\Component\HttpFoundation\Response;
+use Orno\Http\Response;
 
 class ViewOutputTest extends PHPUnit_Framework_TestCase
 {
@@ -17,7 +17,7 @@ class ViewOutputTest extends PHPUnit_Framework_TestCase
     {
         $view = new JsonRenderer;
         $view->data = 'hello';
-        $this->assertTrue($view->render() instanceof Response);
+        $this->assertInstanceOf('Orno\Http\ResponseInterface', $view->render());
     }
 
     /**
@@ -27,7 +27,7 @@ class ViewOutputTest extends PHPUnit_Framework_TestCase
     {
         $view = new XmlRenderer;
         $view->data = 'hello';
-        $this->assertTrue($view->render() instanceof Response);
+        $this->assertInstanceOf('Orno\Http\ResponseInterface', $view->render());
     }
 
     /**
@@ -39,7 +39,7 @@ class ViewOutputTest extends PHPUnit_Framework_TestCase
         $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
         $view->addViewPath(__DIR__ . '/Assets/views/');
         $view->region('content', 'snippet');
-        $this->assertTrue($view->render() instanceof Response);
+        $this->assertInstanceOf('Orno\Http\ResponseInterface', $view->render());
     }
 
     public function testRegionAcceptsDataArray()
@@ -64,7 +64,7 @@ class ViewOutputTest extends PHPUnit_Framework_TestCase
         $view->addLayout(['default' => __DIR__ . '/Assets/views/layout.php']);
         $view->addViewPath(__DIR__ . '/Assets/views/');
         $view->region('content', 'Hello World!');
-        $this->assertTrue($view->render() instanceof Response);
+        $this->assertInstanceOf('Orno\Http\ResponseInterface', $view->render());
     }
 
     /**

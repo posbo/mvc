@@ -131,7 +131,7 @@ class Application
      */
     public function setExceptionHandler($editor = null)
     {
-        $handler = ($this->getContainer()->resolve('request')->isXmlHttpRequest())
+        $handler = ($this->getContainer()->resolve('request')->isAjax())
                  ? 'Whoops\Handler\JsonResponseHandler'
                  : 'Whoops\Handler\PrettyPageHandler';
 
