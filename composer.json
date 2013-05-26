@@ -2,8 +2,7 @@
     "name": "orno/mvc",
     "description": "A routing component that uses Orno\\Di to route to fully configured dependency injected controllers.",
     "keywords": ["orno", "di", "dependency", "injection", "container", "routing"],
-    "homepage": "http://github.com/orno/mvc",
-    "license": "MIT",
+    "license": "WTFPL",
     "require": {
         "php": ">=5.4",
         "orno/di": "1.*",
