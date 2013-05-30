@@ -117,12 +117,12 @@ class Application
                         );
                     }
 
-                    $this->config[$module][$key] = $config;
+                    foreach ($config as $index => $value) {
+                        $this->config[$key][$index] = $value;
+                    }
                 }
             }
         }
-
-        $this->config = array_merge($this->config, $this->config[$module]);
     }
 
     /**
