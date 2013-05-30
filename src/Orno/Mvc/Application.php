@@ -11,6 +11,7 @@ use Orno\Di\ContainerAwareTrait;
 use Orno\Http\RequestInterface;
 use Orno\Http\ResponseInterface;
 use Orno\Http\Request;
+use Orno\Http\Response;
 
 /**
  * Application
