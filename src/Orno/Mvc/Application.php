@@ -43,8 +43,14 @@ class Application
      */
     public function __construct(RequestInterface $request = null)
     {
-        $this->getContainer()->register('request', 'Orno\Http\Request', true)
-             ->withArguments([$_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER]);
+        if (is_null($request)) {
+            $this->getContainer()->register('request', 'Orno\Http\Request', true)
+                 ->withArguments([$_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER]);
+        } else {
+            $this->getContainer()->register('request', function () use ($request) {
+                return $request;
+            }, true);
+        }
     }
 
     /**
