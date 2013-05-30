@@ -130,21 +130,15 @@ class Application
      *
      * Register and start the application exception handler
      *
-     * @param  string|\Closure $editor - sublime|emacs|textmate|macvim
      * @return void
      */
-    public function setExceptionHandler($editor = null)
+    public function setExceptionHandler()
     {
         $handler = ($this->getContainer()->resolve('request')->isAjax())
                  ? 'Whoops\Handler\JsonResponseHandler'
                  : 'Whoops\Handler\PrettyPageHandler';
 
-        if (is_null($editor)) {
-            $this->getContainer()->register('exception_handler', $handler);
-        } else {
-            $this->getContainer()->register('exception_handler', $handler)
-                                 ->withMethodCall('setEditor', [$editor]);
-        }
+        $this->getContainer()->register('exception_handler', $handler);
 
         $this->getContainer()->register('whoops', 'Whoops\Run')
                              ->withMethodCall('pushHandler', ['exception_handler'])
