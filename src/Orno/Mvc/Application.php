@@ -234,7 +234,10 @@ class Application
         }
 
         // give active module config priority
-        if (array_key_exists($route->getModule(), $this->config)) {
+        if (
+            array_key_exists($route->getModule(), $this->config)
+            && array_key_exists('dependencies', $this->config[$route->getModule()])
+        ) {
             $this->setDependencyConfig($this->config[$route->getModule()]['dependencies']);
         }
 
