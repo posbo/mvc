@@ -4,10 +4,6 @@ use Orno\Mvc\Application;
 
 class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
-    public function testSomething() {
-        $this->assertTrue(false);
-    }
-
     public function testLoadModulesThrowsExceptionWithNoModules()
     {
         $this->setExpectedException('Orno\Mvc\Exception\ModuleDefinitionException');
